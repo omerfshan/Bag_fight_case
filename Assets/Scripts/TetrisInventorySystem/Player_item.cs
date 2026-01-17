@@ -2,15 +2,14 @@ using UnityEngine;
 
 public class Player_item : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public SpriteRenderer sr;   // Oyuncunun tuttuğu item sprite'ı
+    public float attackDamage;  // Oyuncunun vuracağı damage
 
-    // Update is called once per frame
-    void Update()
+    public void Load(ItemDataSO data)
     {
-        
+        attackDamage = data.AttackDamage;
+
+        if (sr != null)
+            sr.sprite = data.Sprite;
     }
 }
