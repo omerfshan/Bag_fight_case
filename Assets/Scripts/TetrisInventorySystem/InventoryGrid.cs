@@ -57,40 +57,45 @@ public class InventoryGrid : MonoBehaviour
 
     // Ekran pozisyonunu grid hücresine çevir
     public bool ScreenToGrid(Vector2 screenPos, out int gx, out int gy)
-    {
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            rect,
-            screenPos,
-            null,
-            out var localPos
-        );
+{
+    // Grid'in bağlı olduğu canvası bul
+    Canvas parentCanvas = GetComponentInParent<Canvas>();
+    Camera cam = (parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : parentCanvas.worldCamera;
 
-        float startX = -(gridWidth * cellSize) / 2f;
-        float startY =  (gridHeight * cellSize) / 2f;
+    RectTransformUtility.ScreenPointToLocalPointInRectangle(
+        rect,
+        screenPos,
+        cam, // Null yerine render moduna göre kamera gelmeli
+        out var localPos
+    );
 
-        float px = localPos.x - startX;
-        float py = startY - localPos.y;
+    // Mevcut hesaplaman doğru, aynen devam:
+    float startX = -(gridWidth * cellSize) / 2f;
+    float startY =  (gridHeight * cellSize) / 2f;
 
-        gx = Mathf.FloorToInt(px / cellSize);
-        gy = Mathf.FloorToInt(py / cellSize);
+    float px = localPos.x - startX;
+    float py = startY - localPos.y;
 
-        return gx >= 0 && gy >= 0 && gx < gridWidth && gy < gridHeight;
-    }
+    gx = Mathf.FloorToInt(px / cellSize);
+    gy = Mathf.FloorToInt(py / cellSize);
+
+    return gx >= 0 && gy >= 0 && gx < gridWidth && gy < gridHeight;
+}
 
     // Grid hücresini UI pozisyonuna çevir
 // gx, gy: grid koordinatı | w, h: eşyanın hücre cinsinden boyutu
-    public Vector2 GridToPos(int gx, int gy, int w, int h)
-    {
-        // Grid'in en sol üst köşesinin (0,0 hücresi) koordinatlarını buluyoruz
-        float startX = -(gridWidth * cellSize) / 2f;
-        float startY =  (gridHeight * cellSize) / 2f;
+ public Vector2 GridToPos(int gx, int gy, int w, int h)
+{
+    // Grid'in sol üstünden (0,0 hücresi) hesaplamaya başla
+    float startX = -(gridWidth * cellSize) / 2f;
+    float startY =  (gridHeight * cellSize) / 2f;
 
-        // Eşyanın kapladığı alanın tam ortasını hesaplıyoruz
-        float px = startX + (gx * cellSize) + (w * cellSize) / 2f;
-        float py = startY - (gy * cellSize) - (h * cellSize) / 2f;
+    // Hücrenin merkezine oturması için 0.5f ekliyoruz
+    float px = startX + (gx * cellSize) + (w * cellSize * 0.5f);
+    float py = startY - (gy * cellSize) - (h * cellSize * 0.5f);
 
-        return new Vector2(px, py);
-    }
+    return new Vector2(px, py);
+}
 public bool CanPlace(int gx, int gy, SimpleDragItem item)
 {
     if (gx < 0 || gy < 0) return false;

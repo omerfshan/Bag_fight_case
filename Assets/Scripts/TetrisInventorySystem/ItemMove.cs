@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using DG.Tweening; // DOTween kütüphanesini eklemeyi unutma!
 
 public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
@@ -10,40 +11,127 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     private int lastGX = -1;
     private int lastGY = -1;
     private bool isDragging = false;
+    private Tween scaleTween;
+
     public float dragScale = 1.15f;
-    public InventoryGrid grid;   
+    public InventoryGrid grid;
+
     [Header("Item Shape (1=Full, 0=Empty)")]
-        public int[] shape; 
+    public int[] shape;
     public int width = 1;
     public int height = 1;
+
+    // Detay 3: Eşya istatistikleri
+    [Header("Item Stats")]
+    public float damage = 10f;
+    public float cooldownDuration = 2f;
+
     void Awake()
     {
         rect = GetComponent<RectTransform>();
         canvas = GetComponentInParent<Canvas>();
         originalScale = rect.localScale;
     }
-void Update()
-{
-    
-    if (isDragging && Input.GetKeyDown(KeyCode.R))
+
+    void Update()
     {
-        RotateItem();
+        if (isDragging && Input.GetKeyDown(KeyCode.R))
+        {
+            RotateItem();
+        }
     }
-}
- public void OnBeginDrag(PointerEventData eventData)
+
+   public void OnBeginDrag(PointerEventData eventData)
 {
     isDragging = true;
+    
+    // Eşyayı sürüklemeye başladığında tekrar Canvas'ın çocuğu yap
+    // Böylece OnDrag içindeki "canvas.transform" hesabı doğru çalışır
+    transform.SetParent(canvas.transform); 
+
     originalPos = rect.anchoredPosition;
-    rect.localScale = originalScale * dragScale;
+
+    scaleTween?.Kill();
+    scaleTween = rect.DOScale(originalScale * dragScale, 0.2f).SetEase(Ease.OutBack);
 
     if (lastGX != -1)
     {
         grid.ClearArea(lastGX, lastGY, this);
     }
+
+    rect.SetAsLastSibling();
 }
-public bool IsCellInShape(int localX, int localY)
+
+  public void OnDrag(PointerEventData eventData)
+{
+    Camera cam = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : canvas.worldCamera;
+
+    // "canvas.transform" yerine "transform.parent as RectTransform" kullanıyoruz
+    // Bu sayede eşya nerenin içindeyse oraya göre doğru pozisyonlanır
+    RectTransformUtility.ScreenPointToLocalPointInRectangle(
+        transform.parent as RectTransform, 
+        eventData.position,
+        cam,
+        out Vector2 localPoint
+    );
+    rect.anchoredPosition = localPoint;
+
+    // Highlight işlemleri aynı kalıyor...
+    if (grid.ScreenToGrid(eventData.position, out int gx, out int gy))
     {
-       
+        int targetGX = gx - (width / 2);
+        int targetGY = gy - (height / 2);
+        grid.HighlightArea(targetGX, targetGY, this);
+    }
+}
+
+public void OnEndDrag(PointerEventData eventData)
+{
+    isDragging = false;
+    grid.ClearAllHover();
+    rect.DOKill();
+
+    if (grid.ScreenToGrid(eventData.position, out int gx, out int gy))
+    {
+        // 1x1 eşyalarda kayma olmaması için FloorToInt kullanımı daha sağlıklıdır 
+        // veya width/2 yerine doğrudan gx kullanabilirsiniz (1x1 ise)
+        int targetGX = gx - Mathf.FloorToInt(width / 2f);
+        int targetGY = gy - Mathf.FloorToInt(height / 2f);
+
+        if (grid.CanPlace(targetGX, targetGY, this))
+        {
+            // Parent değişimi
+            transform.SetParent(grid.transform, true); 
+            
+            Vector2 targetPos = grid.GridToPos(targetGX, targetGY, width, height);
+            
+            // Snap (Burada Snap gerçekleşmiyorsa grid.transform hiyerarşisi bozuk olabilir)
+            rect.DOAnchorPos(targetPos, 0.15f).SetEase(Ease.OutQuint);
+
+            grid.FillArea(targetGX, targetGY, this);
+            lastGX = targetGX;
+            lastGY = targetGY;
+            
+            rect.DOScale(originalScale, 0.15f);
+        }
+        else { ReturnToOriginal(); }
+    }
+    else { ReturnToOriginal(); }
+}
+
+    private void ReturnToOriginal()
+    {
+        // Detay 5: Hatalı bırakılırsa zıplayarak geri dönme
+        rect.DOAnchorPos(originalPos, 0.3f).SetEase(Ease.OutBounce);
+
+        if (lastGX != -1)
+        {
+            grid.FillArea(lastGX, lastGY, this);
+        }
+    }
+
+    public bool IsCellInShape(int localX, int localY)
+    {
         int index = localY * width + localX;
         if (index >= 0 && index < shape.Length)
         {
@@ -51,99 +139,33 @@ public bool IsCellInShape(int localX, int localY)
         }
         return false;
     }
-private void RotateItem()
-{
-   
-    int[] newShape = new int[shape.Length];
-    for (int y = 0; y < height; y++)
+
+    private void RotateItem()
     {
-        for (int x = 0; x < width; x++)
+        int[] newShape = new int[shape.Length];
+        for (int y = 0; y < height; y++)
         {
-           
-            int newX = (height - 1) - y;
-            int newY = x;
-            newShape[newY * height + newX] = shape[y * width + x];
+            for (int x = 0; x < width; x++)
+            {
+                int newX = (height - 1) - y;
+                int newY = x;
+                newShape[newY * height + newX] = shape[y * width + x];
+            }
+        }
+
+        shape = newShape;
+        int temp = width;
+        width = height;
+        height = temp;
+
+        // Görsel rotasyon
+        rect.DORotate(rect.eulerAngles + new Vector3(0, 0, -90), 0.2f);
+
+        if (grid.ScreenToGrid(Input.mousePosition, out int gx, out int gy))
+        {
+            int targetGX = gx - (width / 2);
+            int targetGY = gy - (height / 2);
+            grid.HighlightArea(targetGX, targetGY, this);
         }
     }
-
-  
-    shape = newShape;
-    int temp = width;
-    width = height;
-    height = temp;
-
-  
-    rect.Rotate(0, 0, -90);
-
-    
-    if (grid.ScreenToGrid(Input.mousePosition, out int gx, out int gy))
-    {
-        int targetGX = gx - (width / 2);
-        int targetGY = gy - (height / 2);
-        grid.HighlightArea(targetGX, targetGY, this);
-    }
-}
-   public void OnDrag(PointerEventData eventData)
-{
-    
-    RectTransformUtility.ScreenPointToLocalPointInRectangle(
-        canvas.transform as RectTransform,
-        eventData.position,
-        canvas.worldCamera,
-        out Vector2 localPoint
-    );
-    rect.anchoredPosition = localPoint;
-
-   
-    if (grid.ScreenToGrid(eventData.position, out int gx, out int gy))
-    {
-        int targetGX = gx - (width / 2);
-        int targetGY = gy - (height / 2);
-        grid.HighlightArea(targetGX, targetGY, this);
-    }
-    else
-    {
-        grid.ClearAllHover(); 
-    }
-}
-public void OnEndDrag(PointerEventData eventData)
-{
-    isDragging = false; 
-    grid.ClearAllHover();
-    rect.localScale = originalScale;
-
-    if (grid.ScreenToGrid(eventData.position, out int gx, out int gy))
-    {
-        int targetGX = gx - (width / 2);
-        int targetGY = gy - (height / 2);
-
-       
-        if (grid.CanPlace(targetGX, targetGY, this))
-        {
-            rect.anchoredPosition = grid.GridToPos(targetGX, targetGY, width, height);
-
-            grid.FillArea(targetGX, targetGY, this);
-            lastGX = targetGX;
-            lastGY = targetGY;
-        }
-        else
-        {
-            ReturnToOriginal();
-        }
-    }
-    else
-    {
-        ReturnToOriginal();
-    }
-}
-
-
-private void ReturnToOriginal()
-{
-    rect.anchoredPosition = originalPos;
-    
-    if (lastGX != -1) grid.FillArea(lastGX, lastGY, this);
-}
-
-
 }
