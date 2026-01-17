@@ -25,12 +25,15 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     [Header("Item Stats")]
     public float damage = 10f;
     public float cooldownDuration = 2f;
+    private InventorySystem invSystem;
+    [SerializeField] private ItemDataSO itemProperty;
 
     void Awake()
     {
         rect = GetComponent<RectTransform>();
         canvas = GetComponentInParent<Canvas>();
         originalScale = rect.localScale;
+         invSystem=FindAnyObjectByType<InventorySystem>();
     }
 
     void Update()
@@ -44,9 +47,8 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
    public void OnBeginDrag(PointerEventData eventData)
 {
     isDragging = true;
-    
-    // Eşyayı sürüklemeye başladığında tekrar Canvas'ın çocuğu yap
-    // Böylece OnDrag içindeki "canvas.transform" hesabı doğru çalışır
+      if (invSystem != null) invSystem.RemoveItem(this);
+ 
     transform.SetParent(canvas.transform); 
 
     originalPos = rect.anchoredPosition;
@@ -66,8 +68,7 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 {
     Camera cam = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : canvas.worldCamera;
 
-    // "canvas.transform" yerine "transform.parent as RectTransform" kullanıyoruz
-    // Bu sayede eşya nerenin içindeyse oraya göre doğru pozisyonlanır
+   
     RectTransformUtility.ScreenPointToLocalPointInRectangle(
         transform.parent as RectTransform, 
         eventData.position,
@@ -75,8 +76,8 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         out Vector2 localPoint
     );
     rect.anchoredPosition = localPoint;
-
-    // Highlight işlemleri aynı kalıyor...
+  if (invSystem != null) invSystem.RemoveItem(this);
+ 
     if (grid.ScreenToGrid(eventData.position, out int gx, out int gy))
     {
         int targetGX = gx - (width / 2);
@@ -93,19 +94,18 @@ public void OnEndDrag(PointerEventData eventData)
 
     if (grid.ScreenToGrid(eventData.position, out int gx, out int gy))
     {
-        // 1x1 eşyalarda kayma olmaması için FloorToInt kullanımı daha sağlıklıdır 
-        // veya width/2 yerine doğrudan gx kullanabilirsiniz (1x1 ise)
+      
         int targetGX = gx - Mathf.FloorToInt(width / 2f);
         int targetGY = gy - Mathf.FloorToInt(height / 2f);
 
         if (grid.CanPlace(targetGX, targetGY, this))
         {
-            // Parent değişimi
+         
             transform.SetParent(grid.transform, true); 
             
             Vector2 targetPos = grid.GridToPos(targetGX, targetGY, width, height);
-            
-            // Snap (Burada Snap gerçekleşmiyorsa grid.transform hiyerarşisi bozuk olabilir)
+            if (invSystem != null) invSystem.AddItem(this);
+         
             rect.DOAnchorPos(targetPos, 0.15f).SetEase(Ease.OutQuint);
 
             grid.FillArea(targetGX, targetGY, this);
@@ -121,7 +121,7 @@ public void OnEndDrag(PointerEventData eventData)
 
     private void ReturnToOriginal()
     {
-        // Detay 5: Hatalı bırakılırsa zıplayarak geri dönme
+      
         rect.DOAnchorPos(originalPos, 0.3f).SetEase(Ease.OutBounce);
 
         if (lastGX != -1)
@@ -158,7 +158,7 @@ public void OnEndDrag(PointerEventData eventData)
         width = height;
         height = temp;
 
-        // Görsel rotasyon
+      
         rect.DORotate(rect.eulerAngles + new Vector3(0, 0, -90), 0.2f);
 
         if (grid.ScreenToGrid(Input.mousePosition, out int gx, out int gy))

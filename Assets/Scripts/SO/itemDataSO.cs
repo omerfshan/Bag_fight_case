@@ -1,16 +1,19 @@
 using UnityEngine;
 
-public class itemDataSO : 
-{
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+[CreateAssetMenu(fileName = "NewItemData", menuName = "ScriptableObjects/ItemData")]
+public class ItemDataSO : ScriptableObject
+{
+    [Header("Görsel Ayarlar")]
+    [SerializeField] private Sprite _sprite;
+
+
+    [Header("İstatistikler")]
+    [SerializeField] private float _attackDamage;
+    [SerializeField] private float _coolDown;
+
+    public Sprite Sprite => _sprite;
+    public float AttackDamage => _attackDamage;
+    public float CoolDown => _coolDown;
+   
 }
