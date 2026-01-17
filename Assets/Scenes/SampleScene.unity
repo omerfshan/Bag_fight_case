@@ -463,7 +463,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dragScale: 1.15
-  grid: {fileID: 990092238}
+  grid: {fileID: 1744707749}
+  shape: 01000000
   width: 1
   height: 1
 --- !u!1 &193798686
@@ -2433,7 +2434,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 990092236}
+  - {fileID: 1744707748}
   m_Father: {fileID: 1896218634}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -2759,7 +2760,6 @@ GameObject:
   m_Component:
   - component: {fileID: 990092236}
   - component: {fileID: 990092237}
-  - component: {fileID: 990092238}
   m_Layer: 5
   m_Name: Grid_Layout
   m_TagString: Untagged
@@ -2827,12 +2827,12 @@ RectTransform:
   - {fileID: 382175754}
   - {fileID: 1945286763}
   - {fileID: 1265996393}
-  m_Father: {fileID: 914352080}
+  m_Father: {fileID: 1744707748}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -41.451073, y: -45.447968}
-  m_SizeDelta: {x: -116.02905, y: 100}
+  m_AnchoredPosition: {x: -40.614075, y: -41.37394}
+  m_SizeDelta: {x: 121.97095, y: 256.30902}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &990092237
 MonoBehaviour:
@@ -2858,21 +2858,6 @@ MonoBehaviour:
   m_Spacing: {x: 0, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
---- !u!114 &990092238
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 990092235}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46e164f00e8eb0e4180387cd8e7b8d11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gridWidth: 8
-  gridHeight: 6
-  cellSize: 120
 --- !u!1 &1009612357
 GameObject:
   m_ObjectHideFlags: 0
@@ -4044,9 +4029,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dragScale: 1.15
-  grid: {fileID: 990092238}
-  width: 1
-  height: 1
+  grid: {fileID: 1744707749}
+  shape: 010000000100000001000000000000000100000000000000000000000100000000000000
+  width: 3
+  height: 3
 --- !u!114 &1437297032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4226,9 +4212,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dragScale: 1.15
-  grid: {fileID: 990092238}
-  width: 2
-  height: 3
+  grid: {fileID: 1744707749}
+  shape: 010000000100000001000000
+  width: 1
+  height: 2
 --- !u!114 &1461673722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5167,6 +5154,108 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1717856771}
   m_CullTransparentMesh: 1
+--- !u!1 &1744707747
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1744707748}
+  - component: {fileID: 1744707749}
+  m_Layer: 5
+  m_Name: Cells
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1744707748
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1744707747}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 990092236}
+  m_Father: {fileID: 914352080}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.837, y: -4.074}
+  m_SizeDelta: {x: 962, y: 743.691}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1744707749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1744707747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46e164f00e8eb0e4180387cd8e7b8d11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridWidth: 8
+  gridHeight: 6
+  cellSize: 120
+  cell_Layout: {fileID: 990092235}
+  cells:
+  - {fileID: 787484806}
+  - {fileID: 1566235391}
+  - {fileID: 405507979}
+  - {fileID: 222704299}
+  - {fileID: 1389863270}
+  - {fileID: 1717856773}
+  - {fileID: 1692280014}
+  - {fileID: 1567643586}
+  - {fileID: 876615917}
+  - {fileID: 1861061296}
+  - {fileID: 1974048735}
+  - {fileID: 697829429}
+  - {fileID: 1571875058}
+  - {fileID: 1673464860}
+  - {fileID: 1573922732}
+  - {fileID: 1097250644}
+  - {fileID: 1165982150}
+  - {fileID: 1796909437}
+  - {fileID: 1421415032}
+  - {fileID: 918965092}
+  - {fileID: 1081988828}
+  - {fileID: 397743417}
+  - {fileID: 193798688}
+  - {fileID: 55484529}
+  - {fileID: 1009612359}
+  - {fileID: 238179036}
+  - {fileID: 37835075}
+  - {fileID: 925965732}
+  - {fileID: 1311735891}
+  - {fileID: 1549403313}
+  - {fileID: 1606246156}
+  - {fileID: 934927303}
+  - {fileID: 711397391}
+  - {fileID: 457381112}
+  - {fileID: 1041944264}
+  - {fileID: 1668273563}
+  - {fileID: 491100675}
+  - {fileID: 888283588}
+  - {fileID: 2064963471}
+  - {fileID: 1955678394}
+  - {fileID: 595678208}
+  - {fileID: 443201663}
+  - {fileID: 811072446}
+  - {fileID: 1442855168}
+  - {fileID: 830544502}
+  - {fileID: 382175755}
+  - {fileID: 1945286764}
+  - {fileID: 1265996394}
 --- !u!1 &1796909435
 GameObject:
   m_ObjectHideFlags: 0

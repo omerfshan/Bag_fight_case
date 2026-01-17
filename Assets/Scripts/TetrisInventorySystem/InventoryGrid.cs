@@ -5,10 +5,9 @@ public class InventoryGrid : MonoBehaviour
     public int gridWidth = 8;
     public int gridHeight = 6;
     public float cellSize = 120f;
-
+    public GameObject cell_Layout;
     private RectTransform rect;
-
-    // --- EK KISIM ---
+    public CellUI[] cells;
     public CellUI[,] cellUIs;
 
     void Awake()
@@ -18,8 +17,8 @@ public class InventoryGrid : MonoBehaviour
 
     void Start()
     {
-        // Tüm CellUI'ları çekiyoruz
-        CellUI[] all = GetComponentsInChildren<CellUI>();
+       
+        
 
         cellUIs = new CellUI[gridWidth, gridHeight];
 
@@ -29,24 +28,21 @@ public class InventoryGrid : MonoBehaviour
         {
             for (int x = 0; x < gridWidth; x++)
             {
-                CellUI c = all[index];
-                c.SetEmpty();         // başlangıç → boş
-                c.is_filled = false;  // doldurulmamış
+                CellUI c = cells[index];
+                c.SetEmpty();        
+                c.is_filled = false;  
                 cellUIs[x, y] = c;
                 index++;
             }
         }
     }
-    // --- EK BİTİŞ ---
-
-    // Hücreyi doldur
-    public void FillCell(int x, int y)
+       public void FillCell(int x, int y)
     {
         cellUIs[x, y].SetFilled();
         cellUIs[x, y].is_filled = true;
     }
 
-    // Hücreyi boşalt
+    
     public void EmptyCell(int x, int y)
     {
         cellUIs[x, y].SetEmpty();
@@ -82,52 +78,112 @@ public class InventoryGrid : MonoBehaviour
     }
 
     // Grid hücresini UI pozisyonuna çevir
-    public Vector2 GridToPos(int gx, int gy)
+// gx, gy: grid koordinatı | w, h: eşyanın hücre cinsinden boyutu
+    public Vector2 GridToPos(int gx, int gy, int w, int h)
     {
-        float startX = -(gridWidth * cellSize) / 2f + cellSize / 2f;
-        float startY =  (gridHeight * cellSize) / 2f - cellSize / 2f;
+        // Grid'in en sol üst köşesinin (0,0 hücresi) koordinatlarını buluyoruz
+        float startX = -(gridWidth * cellSize) / 2f;
+        float startY =  (gridHeight * cellSize) / 2f;
 
-        float px = startX + gx * cellSize;
-        float py = startY - gy * cellSize;
+        // Eşyanın kapladığı alanın tam ortasını hesaplıyoruz
+        float px = startX + (gx * cellSize) + (w * cellSize) / 2f;
+        float py = startY - (gy * cellSize) - (h * cellSize) / 2f;
 
         return new Vector2(px, py);
     }
-    public bool CanPlace(int gx, int gy, int w, int h)
+public bool CanPlace(int gx, int gy, SimpleDragItem item)
 {
     if (gx < 0 || gy < 0) return false;
-    if (gx + w > gridWidth) return false;
-    if (gy + h > gridHeight) return false;
+    if (gx + item.width > gridWidth || gy + item.height > gridHeight) return false;
 
-    for (int x = 0; x < w; x++)
+    for (int x = 0; x < item.width; x++)
     {
-        for (int y = 0; y < h; y++)
+        for (int y = 0; y < item.height; y++)
         {
-            if (cellUIs[gx + x, gy + y].is_filled)
-                return false;
+            // EŞYANIN O HÜCRESİ DOLUYSA grid kontrolü yap
+            if (item.IsCellInShape(x, y))
+            {
+                if (cellUIs[gx + x, gy + y].is_filled)
+                    return false;
+            }
         }
     }
-
     return true;
 }
-public void FillArea(int gx, int gy, int w, int h)
+
+public void FillArea(int gx, int gy, SimpleDragItem item)
 {
-    for (int x = 0; x < w; x++)
+    for (int x = 0; x < item.width; x++)
     {
-        for (int y = 0; y < h; y++)
+        for (int y = 0; y < item.height; y++)
         {
-            cellUIs[gx + x, gy + y].SetFilled();
-            cellUIs[gx + x, gy + y].is_filled = true;
+            if (item.IsCellInShape(x, y))
+            {
+                cellUIs[gx + x, gy + y].SetFilled();
+                cellUIs[gx + x, gy + y].is_filled = true;
+            }
         }
     }
 }
-public void ClearArea(int gx, int gy, int w, int h)
+public void ClearArea(int gx, int gy, SimpleDragItem item)
 {
-    for (int x = 0; x < w; x++)
+    for (int x = 0; x < item.width; x++)
     {
-        for (int y = 0; y < h; y++)
+        for (int y = 0; y < item.height; y++)
         {
-            cellUIs[gx + x, gy + y].SetEmpty();
-            cellUIs[gx + x, gy + y].is_filled = false;
+            // Sadece eşyanın şekline (shape) dahil olan hücreleri boşalt
+            if (item.IsCellInShape(x, y))
+            {
+                // Koordinatların grid sınırları içinde olduğunu kontrol etmekte fayda var
+                int targetX = gx + x;
+                int targetY = gy + y;
+
+                if (targetX >= 0 && targetX < gridWidth && targetY >= 0 && targetY < gridHeight)
+                {
+                    cellUIs[targetX, targetY].SetEmpty();
+                    cellUIs[targetX, targetY].is_filled = false;
+                }
+            }
+        }
+    }
+}
+
+public void ClearAllHover()
+{
+    for (int y = 0; y < gridHeight; y++)
+    {
+        for (int x = 0; x < gridWidth; x++)
+        {
+    
+            if (cellUIs[x, y].is_filled)
+                cellUIs[x, y].SetFilled();
+            else
+                cellUIs[x, y].SetEmpty();
+        }
+    }
+}
+
+
+public void HighlightArea(int gx, int gy, SimpleDragItem item)
+{
+    ClearAllHover(); 
+    bool canPlace = CanPlace(gx, gy, item);
+    Color highlightColor = canPlace ? Color.green : Color.red;
+
+    for (int x = 0; x < item.width; x++)
+    {
+        for (int y = 0; y < item.height; y++)
+        {
+            if (item.IsCellInShape(x, y))
+            {
+                int tx = gx + x;
+                int ty = gy + y;
+
+                if (tx >= 0 && tx < gridWidth && ty >= 0 && ty < gridHeight)
+                {
+                    cellUIs[tx, ty].img.color = highlightColor;
+                }
+            }
         }
     }
 }
