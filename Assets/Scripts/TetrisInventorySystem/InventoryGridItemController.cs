@@ -312,5 +312,41 @@ private void ResumeCooldown()
 {
     return itemProperty;
 }
+public void LoadData(InventoryItemSO so)
+{
+   
+    itemProperty = so.ItemProperty;
+
+    width = so.Width;
+    height = so.Height;
+    shape = so.Shape;
+
+    // 2) UI sprite
+    if (TryGetComponent<Image>(out var img))
+        img.sprite = so.Icon;
+
+    
+    rect.sizeDelta = so.UISize;  
+
+  
+    currentCooldown = 0f;
+    isOnCooldown = false;
+
+    if (cooldownFill != null)
+        cooldownFill.fillAmount = 1f;  
+
+   
+    lastGX = -1;
+    lastGY = -1;
+
+    
+    rect.localRotation = Quaternion.identity;
+
+    
+    rect.localScale = originalScale;
+
+  
+}
+
 
 }
