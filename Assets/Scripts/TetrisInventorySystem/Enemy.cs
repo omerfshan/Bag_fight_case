@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public class Enemy : MonoBehaviour
 {
     [Header("Movement")]
-    [SerializeField] private Transform[] setPlace;
+    private Transform[] setPlace;
+
     [SerializeField] private float speed = 3f;
     [SerializeField] private float reachDistance = 0.2f;
 
@@ -27,7 +28,19 @@ public class Enemy : MonoBehaviour
     public bool is_ready;
 
     [SerializeField] private Animator anim;
+    public int spawnIndex; // bu enemy hangi hedefe gidiyor
+    private EnemySpawner spawner;
 
+   public void Init(EnemySpawner spawnerRef, int index, Transform[] paths)
+{
+    spawner = spawnerRef;
+    spawnIndex = index;
+    setPlace = paths;
+}
+    void Awake()
+    {
+        spawner=FindAnyObjectByType<EnemySpawner>();
+    }
     void Start()
     {
         currentHealth = maxHealth;
@@ -41,8 +54,7 @@ public class Enemy : MonoBehaviour
 
     private IEnumerator MoveCoroutine()
     {
-        int random = Random.Range(0, setPlace.Length);
-        Transform target = setPlace[random];
+        Transform target = setPlace[spawnIndex];
 
         anim.SetBool(WalkID, true);
 
@@ -93,8 +105,11 @@ public class Enemy : MonoBehaviour
         damageText.gameObject.SetActive(false);
     }
 
-    private void Die()
-    {
-        Destroy(gameObject);
-    }
+   private void Die()
+{
+    spawner.OnEnemyDied(spawnIndex);  // spawner'a haber ver
+    Destroy(gameObject);
+}
+
+    
 }

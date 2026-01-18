@@ -60,7 +60,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 5
   m_TargetDisplay: 0
 --- !u!114 &7043976428104087118
 MonoBehaviour:
@@ -227,7 +227,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5168931579323553653
 RectTransform:
   m_ObjectHideFlags: 0
@@ -244,7 +244,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 127.3, y: 61.4}
+  m_AnchoredPosition: {x: 128.2, y: 82.1}
   m_SizeDelta: {x: 47.9, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3003979090502497155
@@ -823,7 +823,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7b68817eda4a514f87e525cf0f59b0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  setPlace: []
   speed: 3
   reachDistance: 0.2
   WalkID: Walk
@@ -831,8 +830,9 @@ MonoBehaviour:
   damageText: {fileID: 3523215175939983967}
   barFill: {fileID: 1561280494538720547}
   maxHealth: 100
-  is_ready: 1
+  is_ready: 0
   anim: {fileID: 1623619125370161164}
+  spawnIndex: 0
 --- !u!61 &4940771156541783494
 BoxCollider2D:
   m_ObjectHideFlags: 0
