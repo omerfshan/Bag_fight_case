@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Axe
   m_EditorClassIdentifier: 
   _sprite: {fileID: -1771162603792102973, guid: 5f67d6e26ccb2154da838fda671fffe1, type: 3}
-  _attackDamage: 2
+  _attackDamage: 30
   _coolDown: 1

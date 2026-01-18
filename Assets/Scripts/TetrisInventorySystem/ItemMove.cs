@@ -24,7 +24,7 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     public int width = 1;
     public int height = 1;
 
-    private InventorySystem invSystem;
+    private InventoryManager inv;
     [SerializeField] private ItemDataSO itemProperty;
     [SerializeField] private Image cooldownFill;
     // Cooldown
@@ -36,51 +36,37 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     // =========================
     // COOLDOWN FONKSIYONLARI
     // =========================
-    public void ResetCooldown()
-    {
-        if (cooldownRoutine != null)
-        {
-            StopCoroutine(cooldownRoutine);
-            cooldownRoutine = null;
-        }
+   
 
-        isOnCooldown = false;
-        currentCooldown = 0;
-    if (cooldownFill != null)
-        cooldownFill.fillAmount = 0f;
-
-        Debug.Log($"{name} cooldown sıfırlandı.");
-    }
-
-  public void StartCooldown()
+public void StartCooldown()
 {
     if (itemProperty == null) return;
-
-    // 🔥 DRAG ESNASINDA COOLDOWN BAŞLAMASIN
     if (isDragging) return;
+    if (lastGX == -1 || lastGY == -1) return;
 
-    // 🔥 sadece grid üzerindeyse cooldown başlasın
-    if (lastGX == -1 || lastGY == -1)
-        return;
+    if (currentCooldown <= 0f)   // tamamen bitmişse yeni başlat
+    {
+        currentCooldown = itemProperty.CoolDown;
 
-    if (!isOnCooldown)
+        if (cooldownFill != null)
+            cooldownFill.fillAmount = 0f;  // başta boş olsun
+
         cooldownRoutine = StartCoroutine(CooldownRoutine());
+    }
 }
 
 
-   private IEnumerator CooldownRoutine()
+
+
+  private IEnumerator CooldownRoutine()
 {
     isOnCooldown = true;
-    currentCooldown = itemProperty.CoolDown;
 
-    float maxCooldown = currentCooldown;
+    float maxCooldown = itemProperty.CoolDown;
 
-    Debug.Log($"{name} cooldown başladı: {currentCooldown}");
+    Debug.Log($"{name} cooldown devam ediyor: {currentCooldown}");
 
-    if (cooldownFill != null)
-        cooldownFill.fillAmount = 0f;
-
-    while (currentCooldown > 0)
+    while (currentCooldown > 0f)
     {
         currentCooldown -= Time.deltaTime;
 
@@ -90,27 +76,47 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         yield return null;
     }
 
+    // BİTTİ
     isOnCooldown = false;
     cooldownRoutine = null;
-
-    Debug.Log($"{name} cooldown bitti → Inventory’e ekleniyor");
 
     if (cooldownFill != null)
         cooldownFill.fillAmount = 1f;
 
-    // Listeye Ekle
-    if (invSystem != null)
-        invSystem.AddItem(this);
+    if (inv != null)
+        inv.AddItem(this);
 
-    // Küçük gecikme
     yield return new WaitForSeconds(0.1f);
 
     if (cooldownFill != null)
         cooldownFill.fillAmount = 0f;
 
-    // 🔥 GRID ÜZERİNDE DURDUĞU SÜRECE TEKRAR BAŞLAT!
+    // Grid’deyse yeniden başlat
     if (lastGX != -1 && lastGY != -1)
         StartCooldown();
+}
+
+
+private void PauseCooldown()
+{
+    if (!isOnCooldown) return;
+
+    // Coroutine durdur
+    if (cooldownRoutine != null)
+    {
+        StopCoroutine(cooldownRoutine);
+        cooldownRoutine = null;
+    }
+
+    isOnCooldown = true; // Duruyor ama bitmedi
+}
+private void ResumeCooldown()
+{
+    if (isDragging) return;
+    if (!isOnCooldown) return;
+    if (currentCooldown <= 0f) return;
+
+    cooldownRoutine = StartCoroutine(CooldownRoutine());
 }
 
 
@@ -126,7 +132,7 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         originalScale = rect.localScale;
         if (cooldownFill != null)
             cooldownFill.fillAmount = 1f;
-        invSystem = FindAnyObjectByType<InventorySystem>();
+        inv = FindAnyObjectByType<InventoryManager>();
     }
 
     void Update()
@@ -143,10 +149,10 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 {
     isDragging = true;
 
-    ResetCooldown();
+  PauseCooldown();
 
-    if (invSystem != null)
-        invSystem.RemoveItem(this);
+    if (inv != null)
+        inv.RemoveItem(this);
 
     transform.SetParent(canvas.transform);
 
@@ -175,8 +181,8 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
 
         rect.anchoredPosition = localPoint;
 
-        if (invSystem != null)
-            invSystem.RemoveItem(this);
+        if (inv != null)
+            inv.RemoveItem(this);
 
         if (grid.ScreenToGrid(eventData.position, out int gx, out int gy))
         {
@@ -214,11 +220,20 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
                 if (cooldownFill != null)
                     cooldownFill.fillAmount = 1f;
 
-                // 🔥 İTEMİ ANINDA ENVANTERE EKLE
-                if (invSystem != null)
-                    invSystem.AddItem(this);
-                // Cooldown başlat
-                StartCooldown();
+                            // 🔥 İTEMİ ANINDA ENVANTERE EKLE
+                if (inv != null)
+                    inv.AddItem(this);
+
+                // Cooldown başlat veya devam ettir
+                if (currentCooldown <= 0f)
+                {
+                    StartCooldown();   // daha önce hiç başlamadıysa
+                }
+                else
+                {
+                    ResumeCooldown();  // pause’tan dönüyorsa
+                }
+
 
                 return;
             }
@@ -243,12 +258,15 @@ public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     rect.DOAnchorPos(originalPos, 0.3f).SetEase(Ease.OutBounce);
 
     if (lastGX != -1 && lastGY != -1)
-    {
-        grid.FillArea(lastGX, lastGY, this);
+{
+    grid.FillArea(lastGX, lastGY, this);
 
-        // 🔥 GRID’de durduğu sürece cooldown hep devam etsin
+    if (currentCooldown <= 0f)
         StartCooldown();
-    }
+    else
+        ResumeCooldown();
+}
+
 }
 
 

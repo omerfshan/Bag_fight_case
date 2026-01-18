@@ -171,27 +171,30 @@ public void ClearAllHover()
 
 public void HighlightArea(int gx, int gy, SimpleDragItem item)
 {
-    ClearAllHover(); 
+    ClearAllHover();
     bool canPlace = CanPlace(gx, gy, item);
-    Color highlightColor = canPlace ? Color.green : Color.red;
 
     for (int x = 0; x < item.width; x++)
     {
         for (int y = 0; y < item.height; y++)
         {
-            if (item.IsCellInShape(x, y))
-            {
-                int tx = gx + x;
-                int ty = gy + y;
+            if (!item.IsCellInShape(x, y))
+                continue;
 
-                if (tx >= 0 && tx < gridWidth && ty >= 0 && ty < gridHeight)
-                {
-                    cellUIs[tx, ty].img.color = highlightColor;
-                }
-            }
+            int tx = gx + x;
+            int ty = gy + y;
+
+            if (tx < 0 || tx >= gridWidth || ty < 0 || ty >= gridHeight)
+                continue;
+
+            if (canPlace)
+                cellUIs[tx, ty].SetValid();
+            else
+                cellUIs[tx, ty].SetInvalid();
         }
     }
 }
+
 
 
 }
