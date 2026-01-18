@@ -84,10 +84,12 @@ public class Enemy : MonoBehaviour
 
         damageText.gameObject.SetActive(true);
         damageText.text = "-" + dmg;
-
-        yield return new WaitForSeconds(0.5f);
+    yield return new WaitForEndOfFrame();
 
         anim.SetBool(HurtID, false);
+        yield return new WaitForSeconds(0.5f);
+
+        
         damageText.gameObject.SetActive(false);
     }
 

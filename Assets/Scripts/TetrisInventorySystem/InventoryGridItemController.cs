@@ -32,6 +32,10 @@ public class InventoryGridItemController: MonoBehaviour, IBeginDragHandler, IDra
     private float currentCooldown = 0;
     private Coroutine cooldownRoutine;
 
+public bool isReadyToFire = false;
+private Transform originalParent;
+private Vector2 originalAnchoredPos;
+
 
     // =========================
     // COOLDOWN FONKSIYONLARI
@@ -55,17 +59,23 @@ public void StartCooldown()
     }
 }
 
+private void PulseEffect()
+{
+    rect.DOKill(); // eski animler çakışmasın
+
+    Sequence seq = DOTween.Sequence();
+
+    seq.Append(rect.DOScale(originalScale * 1.12f, 0.15f).SetEase(Ease.OutBack))
+       .Append(rect.DOScale(originalScale, 0.15f).SetEase(Ease.InBack));
+}
 
 
-
-  private IEnumerator CooldownRoutine()
+ private IEnumerator CooldownRoutine()
 {
     isOnCooldown = true;
-
     float maxCooldown = itemProperty.CoolDown;
 
-    Debug.Log($"{name} cooldown devam ediyor: {currentCooldown}");
-
+    // Dolma phase
     while (currentCooldown > 0f)
     {
         currentCooldown -= Time.deltaTime;
@@ -76,25 +86,45 @@ public void StartCooldown()
         yield return null;
     }
 
-    // BİTTİ
-    isOnCooldown = false;
-    cooldownRoutine = null;
+    // Buraya geldi → cooldown %100 doldu  
+    cooldownFill.fillAmount = 1f;
 
-    if (cooldownFill != null)
-        cooldownFill.fillAmount = 1f;
+    // 🔥 FULL OLDUĞU ANDA PULSE ÇAK
+    PulseEffect();
 
-    if (inv != null)
+    // 🔥 Pulse bitene kadar hafif gecikme (anim süresi 0.3sn)
+    yield return new WaitForSeconds(0.3f);
+
+    // Artık gerçekten atışa hazır
+    isReadyToFire = true;
+
+    // Listeye ekle (eğer yoksa)
+    if (!inv.inventory_Items.Contains(this))
         inv.AddItem(this);
 
-    yield return new WaitForSeconds(0.1f);
+    isOnCooldown = false;
+    cooldownRoutine = null;
+}
+
+
+
+public void OnFiredBySpawner()
+{
+    isReadyToFire = false;
 
     if (cooldownFill != null)
         cooldownFill.fillAmount = 0f;
 
-    // Grid’deyse yeniden başlat
-    if (lastGX != -1 && lastGY != -1)
-        StartCooldown();
+    currentCooldown = itemProperty.CoolDown;
+
+    if (cooldownRoutine != null)
+        StopCoroutine(cooldownRoutine);
+
+    cooldownRoutine = StartCoroutine(CooldownRoutine());
 }
+
+
+
 
 
 private void PauseCooldown()
@@ -128,11 +158,12 @@ private void ResumeCooldown()
     void Awake()
     {
         rect = GetComponent<RectTransform>();
-        canvas = GetComponentInParent<Canvas>();
+        canvas = GameObject.FindWithTag("MainCanvas").GetComponent<Canvas>();
         originalScale = rect.localScale;
         if (cooldownFill != null)
             cooldownFill.fillAmount = 1f;
         inv = FindAnyObjectByType<InventoryManager>();
+        grid=FindAnyObjectByType<InventoryGrid>();
     }
 
     void Update()
@@ -148,7 +179,8 @@ private void ResumeCooldown()
    public void OnBeginDrag(PointerEventData eventData)
 {
     isDragging = true;
-
+  originalParent = transform.parent;
+    originalAnchoredPos = rect.anchoredPosition;
   PauseCooldown();
 
     if (inv != null)
@@ -220,20 +252,21 @@ private void ResumeCooldown()
                 if (cooldownFill != null)
                     cooldownFill.fillAmount = 1f;
 
-                            // 🔥 İTEMİ ANINDA ENVANTERE EKLE
                 if (inv != null)
                     inv.AddItem(this);
 
-                // Cooldown başlat veya devam ettir
-                if (currentCooldown <= 0f)
+                // 🔥 UI slot boşalt (Yeni ekleme)
+                if (TryGetComponent<UISlotInfo>(out var info))
                 {
-                    StartCooldown();   // daha önce hiç başlamadıysa
-                }
-                else
-                {
-                    ResumeCooldown();  // pause’tan dönüyorsa
+                    FindAnyObjectByType<UIitemSpawner>().MarkSlotEmpty(info.slotIndex);
+                    Destroy(info);
                 }
 
+                // Cooldown
+                if (currentCooldown <= 0f)
+                    StartCooldown();
+                else
+                    ResumeCooldown();
 
                 return;
             }
@@ -253,21 +286,40 @@ private void ResumeCooldown()
     // =========================
     // HELPER FONKSIYONLAR
     // =========================
-    private void ReturnToOriginal()
+private void ReturnToOriginal()
 {
-    rect.DOAnchorPos(originalPos, 0.3f).SetEase(Ease.OutBounce);
-
+    // GRIDDEYDİ → grid pozisyonuna dön
     if (lastGX != -1 && lastGY != -1)
-{
-    grid.FillArea(lastGX, lastGY, this);
+    {
+        Vector3 worldPos = rect.TransformPoint(Vector3.zero);
+        transform.SetParent(grid.transform, false);
 
-    if (currentCooldown <= 0f)
-        StartCooldown();
-    else
-        ResumeCooldown();
+        Vector2 localInGrid = grid.transform.InverseTransformPoint(worldPos);
+        rect.anchoredPosition = localInGrid;
+
+        Vector2 targetPos = grid.GridToPos(lastGX, lastGY, width, height);
+        rect.DOAnchorPos(targetPos, 0.2f).SetEase(Ease.OutQuad);
+        rect.DOScale(originalScale, 0.15f);
+
+        grid.FillArea(lastGX, lastGY, this);
+
+        // 🔥 EKLENECEK TEK KISIM
+        if (currentCooldown <= 0f)
+            StartCooldown();
+        else
+            ResumeCooldown();
+
+        return;
+    }
+
+    // GRIDDE DEĞİLDİ → UI'YA dön
+    transform.SetParent(originalParent, false);
+    rect.DOAnchorPos(originalAnchoredPos, 0.2f);
+    rect.DOScale(originalScale, 0.15f);
 }
 
-}
+
+
 
 
     public bool IsCellInShape(int localX, int localY)
@@ -323,9 +375,11 @@ public void LoadData(InventoryItemSO so)
 
     // 2) UI sprite
     if (TryGetComponent<Image>(out var img))
-        img.sprite = so.Icon;
-
-    
+        img.sprite = so.ItemProperty.Sprite;
+     if (cooldownFill != null)
+    {
+        cooldownFill.sprite = img.sprite;       
+    }
     rect.sizeDelta = so.UISize;  
 
   
@@ -333,8 +387,19 @@ public void LoadData(InventoryItemSO so)
     isOnCooldown = false;
 
     if (cooldownFill != null)
-        cooldownFill.fillAmount = 1f;  
+    {
+        
+        cooldownFill.sprite = img.sprite;
 
+      
+        cooldownFill.rectTransform.sizeDelta = img.rectTransform.sizeDelta;
+
+    
+     
+
+
+       
+    }
    
     lastGX = -1;
     lastGY = -1;

@@ -7,14 +7,24 @@ public class Player_item : MonoBehaviour
     private Transform target;
 
     public float speed = 5f;
+    public float lifetime = 2f;
+
     private SpriteRenderer _renderer;
 
     private Tween moveTween;
     private Tween rotateTween;
 
+    private bool hasHit = false; // bir kere hasar için
+
     void Awake()
     {
         _renderer = GetComponent<SpriteRenderer>();
+    }
+
+    void Start()
+    {
+        // güvenlik için 2 saniye sonra yok et
+        Destroy(gameObject, lifetime);
     }
 
     public void Load(ItemDataSO newData)
@@ -29,6 +39,7 @@ public class Player_item : MonoBehaviour
         StartTweenToTarget();
     }
 
+
     private void StartTweenToTarget()
     {
         if (target == null) return;
@@ -39,7 +50,12 @@ public class Player_item : MonoBehaviour
 
         moveTween = transform
             .DOJump(target.position, jumpPower, 1, duration)
-            .SetEase(Ease.Linear);
+            .SetEase(Ease.Linear)
+            .OnComplete(() =>
+            {
+                TryHitTarget();
+                Destroy(gameObject);
+            });
 
         rotateTween = transform
             .DORotate(new Vector3(0, 0, -360), 0.3f, RotateMode.FastBeyond360)
@@ -47,23 +63,29 @@ public class Player_item : MonoBehaviour
             .SetEase(Ease.Linear);
     }
 
-    // 🔥 ÇARPIŞMA BURADA
-    private void OnTriggerEnter2D(Collider2D other)
+
+    private void TryHitTarget()
     {
-        // Diğer objede Enemy var mı?
-        Enemy enemy = other.GetComponent<Enemy>();
-        if (enemy != null)
+        if (hasHit) return;
+
+        if (target == null) return;
+
+        float hitDist = Vector3.Distance(transform.position, target.position);
+
+        // hedefe yeterince yakınsa hasar ver
+        if (hitDist < 0.5f)
         {
-            Debug.Log("Düşmana çarptı! Damage: " + data.AttackDamage);
+            hasHit = true;
 
-            enemy.TakeDamage(data.AttackDamage);
-
-            rotateTween?.Kill();
-            moveTween?.Kill();
-
-            Destroy(gameObject);
+            Enemy enemy = target.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(data.AttackDamage);
+                Debug.Log("Target enemy'e damage vuruldu! Damage: " + data.AttackDamage);
+            }
         }
     }
+
 
     void OnDestroy()
     {

@@ -8,56 +8,82 @@ public class Spawner : MonoBehaviour
     [SerializeField] private string AttackID = "Attack";
     [SerializeField] private Player_item prefab;
 
-    private void OnEnable()
+    private bool isAttacking = false;
+
+    void Update()
+{
+    if (isAttacking) return;
+
+    foreach (var item in invSystem.inventory_Items)
     {
-        invSystem.OnItemAdded += HandleItemAdded;
-    }
-
-    private void OnDisable()
-    {
-        invSystem.OnItemAdded -= HandleItemAdded;
-    }
-
-    private void HandleItemAdded(InventoryGridItemController invItem)
-    {
-        ItemDataSO data = invItem.GetData();
-
-        Enemy[] enemies = FindObjectsOfType<Enemy>();
-
-        foreach (Enemy enemy in enemies)
+        if (item.isReadyToFire)
         {
-            if (enemy.is_ready)
-            {
-                Player_item bullet = Instantiate(prefab, transform.position, Quaternion.identity);
-
-                bullet.Load(data);
-                bullet.SetTarget(enemy.transform);
-
-                // 🔥 ANİMASYON → ANINDA BAŞLA
-                StartCoroutine(PlayAttackAnimation());
-
-                Debug.Log("Item fırlatıldı → " + enemy.name);
-            }
+            StartCoroutine(FireItemCoroutine(item));
+            break;
         }
-
-        invSystem.RemoveItem(invItem);
     }
+}
+
+
+   private IEnumerator FireItemCoroutine(InventoryGridItemController invItem)
+{
+    isAttacking = true;
+
+    ItemDataSO data = invItem.GetData();
+
+    // ⭐ EN YAKIN READY ENEMY BUL
+    Enemy targetEnemy = null;
+    float closestDistance = Mathf.Infinity;
+    Vector3 myPos = transform.position;
+
+    foreach (Enemy enemy in FindObjectsOfType<Enemy>())
+    {
+        if (!enemy.is_ready)
+            continue;
+
+        float dist = Vector3.Distance(myPos, enemy.transform.position);
+
+        if (dist < closestDistance)
+        {
+            closestDistance = dist;
+            targetEnemy = enemy;
+        }
+    }
+
+    // 🔥 Eğer target bulunduysa ateş et
+    if (targetEnemy != null)
+    {
+        Player_item bullet = Instantiate(prefab, transform.position, Quaternion.identity);
+        bullet.Load(data);
+        bullet.SetTarget(targetEnemy.transform);
+
+        StartCoroutine(PlayAttackAnimation());
+    }
+
+    // 🔥 Itemı listeden kaldır
+    invSystem.RemoveItem(invItem);
+
+    // 🔥 Cooldown sıfırla
+    invItem.OnFiredBySpawner();
+
+    // 🔥 Küçük global delay (0.12 saniye)
+    yield return new WaitForSeconds(0.12f);
+
+    isAttacking = false;
+}
+
+
+
 
     private IEnumerator PlayAttackAnimation()
     {
-        // 🔥 Attack animasyonunu başlat
         anim.SetBool(AttackID, true);
 
-        // 🔥 Attack animasyonunun klip uzunluğunu al (gecikmesiz, %100 doğru)
         float clipLength = GetAnimationLength(anim, AttackID);
-
-        // Klip bulunamadıysa fallback
         if (clipLength <= 0f) clipLength = 0.3f;
 
-        // 🔥 Animasyon süresi kadar bekle
         yield return new WaitForSeconds(clipLength);
 
-        // 🔥 Animasyonu kapat
         anim.SetBool(AttackID, false);
     }
 
@@ -66,9 +92,8 @@ public class Spawner : MonoBehaviour
         foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
         {
             if (clip.name == stateName)
-                return clip.length; // 🔥 gerçek süre
+                return clip.length;
         }
-
-        return -1f; // bulunamazsa
+        return -1f;
     }
 }

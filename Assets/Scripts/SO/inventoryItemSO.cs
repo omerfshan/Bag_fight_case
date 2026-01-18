@@ -4,7 +4,6 @@ using UnityEngine;
 public class InventoryItemSO : ScriptableObject
 {
     [Header("Görsel ve İsim")]
-    [SerializeField] private Sprite _icon;
     [SerializeField] private string _itemName;
 
     [Header("GRID BOYUTU (Hücre olarak)")]
@@ -24,7 +23,7 @@ public class InventoryItemSO : ScriptableObject
     // =====================
     // GETTER’LAR
     // =====================
-    public Sprite Icon => _icon;
+ 
     public string ItemName => _itemName;
 
     public int Width => _width;
