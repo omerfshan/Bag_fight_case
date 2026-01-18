@@ -96,7 +96,7 @@ public class InventoryGrid : MonoBehaviour
 
     return new Vector2(px, py);
 }
-public bool CanPlace(int gx, int gy, SimpleDragItem item)
+public bool CanPlace(int gx, int gy, InventoryGridItemController item)
 {
     if (gx < 0 || gy < 0) return false;
     if (gx + item.width > gridWidth || gy + item.height > gridHeight) return false;
@@ -116,7 +116,7 @@ public bool CanPlace(int gx, int gy, SimpleDragItem item)
     return true;
 }
 
-public void FillArea(int gx, int gy, SimpleDragItem item)
+public void FillArea(int gx, int gy, InventoryGridItemController item)
 {
     for (int x = 0; x < item.width; x++)
     {
@@ -130,7 +130,7 @@ public void FillArea(int gx, int gy, SimpleDragItem item)
         }
     }
 }
-public void ClearArea(int gx, int gy, SimpleDragItem item)
+public void ClearArea(int gx, int gy, InventoryGridItemController item)
 {
     for (int x = 0; x < item.width; x++)
     {
@@ -169,7 +169,7 @@ public void ClearAllHover()
 }
 
 
-public void HighlightArea(int gx, int gy, SimpleDragItem item)
+public void HighlightArea(int gx, int gy, InventoryGridItemController item)
 {
     ClearAllHover();
     bool canPlace = CanPlace(gx, gy, item);

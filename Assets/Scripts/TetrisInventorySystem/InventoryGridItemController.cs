@@ -4,7 +4,7 @@ using DG.Tweening;
 using System.Collections;
 using UnityEngine.UI;
 
-public class SimpleDragItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class InventoryGridItemController: MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     private RectTransform rect;
     private Canvas canvas;
