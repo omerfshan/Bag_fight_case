@@ -7,7 +7,7 @@ public class PlayerSpawner : MonoBehaviour
     [SerializeField] private Animator anim;
     [SerializeField] private string AttackID = "Attack";
     [SerializeField] private Player_item prefab;
-
+    private bool globalDelay = false;
     private bool isAttacking = false;
 
     
@@ -35,42 +35,45 @@ public class PlayerSpawner : MonoBehaviour
         enemyQueueHandler.Unregister(enemy);
     }
 
-    void Update()
-{
-    invSystem.inventory_Items.RemoveAll(x => x == null);
+   private void Update()
+   {
+        if (globalDelay) return;  
 
-    foreach (var item in invSystem.inventory_Items)
-    {
-        if (item.isReadyToFire)
+        invSystem.inventory_Items.RemoveAll(x => x == null);
+
+        foreach (var item in invSystem.inventory_Items)
         {
-            StartCoroutine(FireItemCoroutine(item));
-            break;
+            if (item.isReadyToFire)
+            {
+                StartCoroutine(FireItemCoroutine(item));
+                break;
+            }
         }
-    }
-}
+   }
 
-   private IEnumerator FireItemCoroutine(InventoryGridItemController invItem)
-{
-    // Artık bu item hazır değil
-    invItem.isReadyToFire = false;
 
-    // Envanterden ANINDA çıkar
-    invSystem.RemoveItem(invItem);
-    invItem.OnFiredBySpawner();
-
-    // Target seç
-    Enemy target = targetSelector.GetNextEnemy();
-
-    if (target != null)
+    private IEnumerator FireItemCoroutine(InventoryGridItemController invItem)
     {
-        attackExecutor.SpawnBullet(invItem, target.transform);
+        globalDelay = true; 
 
-        // animasyon paralel çalışsın
-        StartCoroutine(attackExecutor.PlayAttackAnimation());
+        yield return new WaitForSeconds(0.12f);  
+
+        invItem.isReadyToFire = false;
+        invSystem.RemoveItem(invItem);
+        invItem.OnFiredBySpawner();
+
+        Enemy target = targetSelector.GetNextEnemy();
+
+        if (target != null)
+        {
+            attackExecutor.SpawnBullet(invItem, target.transform);
+            StartCoroutine(attackExecutor.PlayAttackAnimation());
+        }
+
+        yield return new WaitForSeconds(0.05f);
+
+        globalDelay = false;    
     }
 
-    // çok küçük bir gecikme
-    yield return new WaitForSeconds(0.05f);
-}
 
 }
