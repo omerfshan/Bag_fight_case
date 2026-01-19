@@ -240,7 +240,7 @@ public class ItemDragHandler
 
         
             item.grid.FillArea(item.lastGX, item.lastGY, item);
-
+            
         
             if (item.currentCooldown <= 0f)
                 item.StartCooldown();

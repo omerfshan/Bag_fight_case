@@ -9,7 +9,7 @@ public class InventoryManager : MonoBehaviour
     public void AddItem(InventoryGridItemController item)
     {
         inventory_Items.Add(item);
-        Debug.Log(item.name + " envanter listesine eklendi.");
+     
         OnItemAdded?.Invoke(item);
     }
 
@@ -17,7 +17,7 @@ public class InventoryManager : MonoBehaviour
     public void RemoveItem(InventoryGridItemController item)
         {
             inventory_Items.Remove(item);
-            Debug.Log(item.name + " envanter listesinden çıkarıldı.");
+         
         }
 
    
