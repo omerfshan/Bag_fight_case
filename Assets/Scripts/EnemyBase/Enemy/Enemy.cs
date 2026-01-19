@@ -31,7 +31,8 @@ public class Enemy : MonoBehaviour
     public int spawnIndex;
     public EnemySpawner spawner;
 
-    [SerializeField] public ParticleSystem[] DiedEfect;
+    [SerializeField] public ParticleSystem[] DiedEffect;
+    [SerializeField] public ParticleSystem[] HitEffect;
     [SerializeField] public GameObject HealthParent;
     [SerializeField] public GameObject TextParent;
 

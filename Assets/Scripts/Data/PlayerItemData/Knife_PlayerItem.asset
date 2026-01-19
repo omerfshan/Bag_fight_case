@@ -15,5 +15,5 @@ MonoBehaviour:
   _sprite: {fileID: 761100573506273824, guid: ee93fb42bef7c5b4f9c94cb2d810acdf, type: 3}
   _size: {x: 0.3, y: 0.3, z: 0.3}
   _attackDamage: 4
-  _coolDown: 2
+  _coolDown: 1
   IsDiagonalThrow: 1

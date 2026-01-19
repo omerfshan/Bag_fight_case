@@ -36,38 +36,41 @@ public class PlayerSpawner : MonoBehaviour
     }
 
     void Update()
-    {
-        if (isAttacking) return;
+{
+    invSystem.inventory_Items.RemoveAll(x => x == null);
 
-        foreach (var item in invSystem.inventory_Items)
+    foreach (var item in invSystem.inventory_Items)
+    {
+        if (item.isReadyToFire)
         {
-            if (item.isReadyToFire)
-            {
-                StartCoroutine(FireItemCoroutine(item));
-                break;
-            }
+            StartCoroutine(FireItemCoroutine(item));
+            break;
         }
     }
+}
 
-    private IEnumerator FireItemCoroutine(InventoryGridItemController invItem)
+   private IEnumerator FireItemCoroutine(InventoryGridItemController invItem)
+{
+    // Artık bu item hazır değil
+    invItem.isReadyToFire = false;
+
+    // Envanterden ANINDA çıkar
+    invSystem.RemoveItem(invItem);
+    invItem.OnFiredBySpawner();
+
+    // Target seç
+    Enemy target = targetSelector.GetNextEnemy();
+
+    if (target != null)
     {
-        isAttacking = true;
+        attackExecutor.SpawnBullet(invItem, target.transform);
 
-       
-        Enemy target = targetSelector.GetNextEnemy();
-
-        if (target != null)
-        {
-            yield return attackExecutor.FireItem(invItem, target.transform);
-
-        
-            invSystem.RemoveItem(invItem);
-
-           
-            invItem.OnFiredBySpawner();
-        }
-
-        yield return new WaitForSeconds(0.12f);
-        isAttacking = false;
+        // animasyon paralel çalışsın
+        StartCoroutine(attackExecutor.PlayAttackAnimation());
     }
+
+    // çok küçük bir gecikme
+    yield return new WaitForSeconds(0.05f);
+}
+
 }

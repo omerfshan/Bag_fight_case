@@ -46,7 +46,7 @@ public class PlayerItemMovement
         }
 
         rotateTween = item.transform
-             .DORotate(new Vector3(0, 0, -360), 0.15f, RotateMode.FastBeyond360)
+             .DORotate(new Vector3(0, 0, -360), 0.2f, RotateMode.FastBeyond360)
             .SetLoops(-1)
             .SetEase(Ease.Linear);
     }

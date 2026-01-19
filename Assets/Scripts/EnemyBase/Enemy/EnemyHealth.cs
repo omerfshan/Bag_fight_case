@@ -31,6 +31,7 @@ public class EnemyHealth
         if (enemy.currentHealth < 0) enemy.currentHealth = 0;
 
         UpdateHealthBar();
+        PlayHitEffects();
         enemy.StartCoroutine(DamageRoutine(dmg));
 
         SoundManager.Instance.EnemyHurtSound();
@@ -62,5 +63,15 @@ public class EnemyHealth
 
         if (enemy.damageText != null)
             enemy.damageText.gameObject.SetActive(false);
+    }
+    private void PlayHitEffects()
+    {
+        if (enemy.HitEffect == null) return;
+
+        foreach (var fx in enemy.HitEffect)
+        {
+            if (fx != null)
+                fx.Play();
+        }
     }
 }

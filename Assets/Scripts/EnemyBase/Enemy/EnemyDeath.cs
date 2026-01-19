@@ -29,7 +29,7 @@ public class EnemyDeath
 
         if (enemy.rendererRef != null) enemy.rendererRef.enabled = false;
 
-        foreach (var p in enemy.DiedEfect)
+        foreach (var p in enemy.DiedEffect)
         {
             if (p != null)
                 p.Play();
@@ -45,4 +45,6 @@ public class EnemyDeath
 
         Object.Destroy(enemy.gameObject);
     }
+    
+
 }

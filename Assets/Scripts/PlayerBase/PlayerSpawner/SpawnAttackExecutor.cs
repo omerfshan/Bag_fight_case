@@ -30,10 +30,9 @@ public class SpawnAttackExecutor
         yield return PlayAttackAnimation();
     }
 
-    private IEnumerator PlayAttackAnimation()
+    public IEnumerator PlayAttackAnimation()
     {
-        if (animator == null)
-            yield break;
+        if (animator == null) yield break;
 
         animator.SetBool(attackID, true);
 
@@ -54,4 +53,20 @@ public class SpawnAttackExecutor
         }
         return -1f;
     }
+    public void SpawnBullet(InventoryGridItemController invItem, Transform target)
+    {
+        ItemDataSO data = invItem.GetData();
+
+        Player_item bullet = Object.Instantiate(prefab,
+            spawner.transform.position,
+            Quaternion.identity);
+
+        SoundManager.Instance.ThrowItemSound();
+
+        bullet.Load(data);
+        bullet.SetTarget(target);
+    }
+
+
+
 }
