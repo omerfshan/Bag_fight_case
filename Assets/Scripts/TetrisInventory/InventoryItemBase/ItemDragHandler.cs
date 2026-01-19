@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using DG.Tweening;
+using System.Collections;
 
 public class ItemDragHandler
 {
@@ -157,7 +158,9 @@ public class ItemDragHandler
         item.transform.SetParent(item.grid.transform, true);
 
         Vector2 targetPos = item.grid.GridToPos(gx, gy, item.width, item.height);
-        item.rect.DOAnchorPos(targetPos, 0.15f).SetEase(Ease.OutQuint);
+
+   
+        item.StartCoroutine(SmoothPlace(targetPos));
 
         item.grid.FillArea(gx, gy, item);
 
@@ -165,6 +168,7 @@ public class ItemDragHandler
         item.lastGY = gy;
 
         item.rect.DOScale(item.originalScale, 0.15f);
+
         SoundManager.Instance.ItemPlaceSound();
 
         if (item.cooldownFill != null)
@@ -173,10 +177,9 @@ public class ItemDragHandler
         if (item.inv != null)
             item.inv.AddItem(item);
 
-      
         if (item.TryGetComponent<UISlotInfo>(out var info))
         {
-           item.spawnerRef.MarkSlotEmpty(info.slotIndex);
+            item.spawnerRef.MarkSlotEmpty(info.slotIndex);
             Object.Destroy(info);
         }
 
@@ -185,6 +188,7 @@ public class ItemDragHandler
         else
             item.ResumeCooldown();
     }
+
 
    
     private void HandleTrashDelete()
@@ -209,17 +213,15 @@ public class ItemDragHandler
     }
 
     
-    public void ReturnToOriginal()
+   public void ReturnToOriginal()
     {
         item.isDragging = false;
 
-    
+        // GRİDE GERİ DÖNÜŞ
         if (item.lastGX != -1 && item.lastGY != -1)
         {
-        
             Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(item.canvas.worldCamera, item.rect.position);
 
-        
             RectTransform gridRect = item.grid.GetComponent<RectTransform>();
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 gridRect,
@@ -228,20 +230,18 @@ public class ItemDragHandler
                 out Vector2 localPos
             );
 
-        
             item.transform.SetParent(item.grid.transform, false);
             item.rect.anchoredPosition = localPos;
 
-        
             Vector2 targetPos = item.grid.GridToPos(item.lastGX, item.lastGY, item.width, item.height);
 
-            item.rect.DOAnchorPos(targetPos, 0.2f).SetEase(Ease.OutQuad);
+        
+            item.StartCoroutine(SmoothReturn(targetPos));
+
             item.rect.DOScale(item.originalScale, 0.15f);
 
-        
             item.grid.FillArea(item.lastGX, item.lastGY, item);
-            
-        
+
             if (item.currentCooldown <= 0f)
                 item.StartCooldown();
             else
@@ -250,10 +250,43 @@ public class ItemDragHandler
             return;
         }
 
-    
+
         item.transform.SetParent(item.originalParent, true);
-        item.rect.DOAnchorPos(item.originalAnchoredPos, 0.2f);
+
+    
+        item.StartCoroutine(SmoothReturn(item.originalAnchoredPos));
+
         item.rect.DOScale(item.originalScale, 0.15f);
     }
+
+    private IEnumerator SmoothReturn(Vector2 targetPos, float time = 0.18f)
+    {
+        Vector2 start = item.rect.anchoredPosition;
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / time;
+            item.rect.anchoredPosition = Vector2.Lerp(start, targetPos, t);
+            yield return null;
+        }
+
+        item.rect.anchoredPosition = targetPos;
+    }
+    private IEnumerator SmoothPlace(Vector2 targetPos, float time = 0.13f)
+    {
+        Vector2 start = item.rect.anchoredPosition;
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += Time.deltaTime / time;
+            item.rect.anchoredPosition = Vector2.Lerp(start, targetPos, t);
+            yield return null;
+        }
+
+        item.rect.anchoredPosition = targetPos;
+    }
+
 
 }
