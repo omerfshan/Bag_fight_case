@@ -21,7 +21,7 @@ public class InventoryGridItemController :
     public int[] shape;
     public int width = 1;
     public int height = 1;
-    public float dragScale = 1.15f;
+    public float dragScale = 1.25f;
     public bool isReadyToFire = false;
     public ItemDataSO itemProperty;
     public Vector3 lastWorldPos;
