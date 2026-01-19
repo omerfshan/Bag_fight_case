@@ -11,9 +11,6 @@ public class ItemCooldownHandler
         item = controller;
     }
 
-    // =====================================================
-    //  START COOLDOWN
-    // =====================================================
     public void StartCooldown()
     {
         if (item.itemProperty == null) return;
@@ -31,9 +28,7 @@ public class ItemCooldownHandler
         }
     }
 
-    // =====================================================
-    //  FIRE SONRASI COOLDOWN
-    // =====================================================
+
     public void OnFiredBySpawner()
     {
         item.isReadyToFire = false;
@@ -49,9 +44,7 @@ public class ItemCooldownHandler
         item.cooldownRoutine = item.StartCoroutine(CooldownRoutine());
     }
 
-    // =====================================================
-    // COOLDOWN DURDURMA
-    // =====================================================
+ 
     public void PauseCooldown()
     {
         if (!item.isOnCooldown) return;
@@ -65,9 +58,7 @@ public class ItemCooldownHandler
         item.isOnCooldown = true;
     }
 
-    // =====================================================
-    // COOLDOWN DEVAM
-    // =====================================================
+ 
     public void ResumeCooldown()
     {
         if (item.isDragging) return;
@@ -77,16 +68,14 @@ public class ItemCooldownHandler
         item.cooldownRoutine = item.StartCoroutine(CooldownRoutine());
     }
 
-    // =====================================================
-    // COOLDOWN ANA ROUTINE (ORİJİNAL)
-    // =====================================================
+ 
     private IEnumerator CooldownRoutine()
     {
         item.isOnCooldown = true;
 
         float maxCooldown = item.itemProperty.CoolDown;
 
-        // Dolma fazı
+      
         while (item.currentCooldown > 0f)
         {
             item.currentCooldown -= Time.deltaTime;
@@ -99,15 +88,14 @@ public class ItemCooldownHandler
 
         item.cooldownFill.fillAmount = 1f;
 
-        // Pulse efekti
         PulseEffect();
 
         yield return new WaitForSeconds(0.3f);
 
-        // artık atışa hazır
+       
         item.isReadyToFire = true;
 
-        // listeye ekle
+     
         if (!item.inv.inventory_Items.Contains(item))
             item.inv.AddItem(item);
 
@@ -115,18 +103,17 @@ public class ItemCooldownHandler
         item.cooldownRoutine = null;
     }
 
-    // =====================================================
-    // PULSE EFEKTİ (ORİJİNAL)
-    // =====================================================
-    private void PulseEffect()
+   
+   private void PulseEffect()
     {
         item.rect.DOKill();
 
         Sequence seq = DOTween.Sequence();
 
-        seq.Append(item.rect.DOScale(item.originalScale * 1.12f, 0.15f)
+        seq.Append(item.rect.DOScale(item.originalScale * 1.28f, 0.18f)
             .SetEase(Ease.OutBack))
-           .Append(item.rect.DOScale(item.originalScale, 0.15f)
+        .Append(item.rect.DOScale(item.originalScale, 0.18f)
             .SetEase(Ease.InBack));
     }
+
 }
