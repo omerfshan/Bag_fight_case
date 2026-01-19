@@ -31,14 +31,17 @@ public class Spawner : MonoBehaviour
 
     ItemDataSO data = invItem.GetData();
 
-    // ⭐ EN YAKIN READY ENEMY BUL
+    // ⭐ EN YAKIN READY + ALIVE ENEMY BUL
     Enemy targetEnemy = null;
     float closestDistance = Mathf.Infinity;
     Vector3 myPos = transform.position;
 
-    foreach (Enemy enemy in FindObjectsOfType<Enemy>())
+    foreach (Enemy enemy in FindObjectsByType<Enemy>(FindObjectsSortMode.None))
     {
         if (!enemy.is_ready)
+            continue;
+
+        if (enemy.is_dead)        // 🔥 ÖLÜ DÜŞMANI ATLA
             continue;
 
         float dist = Vector3.Distance(myPos, enemy.transform.position);
@@ -50,7 +53,7 @@ public class Spawner : MonoBehaviour
         }
     }
 
-    // 🔥 Eğer target bulunduysa ateş et
+    // Ateş et
     if (targetEnemy != null)
     {
         Player_item bullet = Instantiate(prefab, transform.position, Quaternion.identity);
@@ -60,17 +63,16 @@ public class Spawner : MonoBehaviour
         StartCoroutine(PlayAttackAnimation());
     }
 
-    // 🔥 Itemı listeden kaldır
+    // Item listeden kaldır
     invSystem.RemoveItem(invItem);
 
-    // 🔥 Cooldown sıfırla
+    // Cooldown
     invItem.OnFiredBySpawner();
 
-    // 🔥 Küçük global delay (0.12 saniye)
     yield return new WaitForSeconds(0.12f);
-
     isAttacking = false;
 }
+
 
 
 

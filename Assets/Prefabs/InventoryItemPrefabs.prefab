@@ -26,7 +26,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1815735267290261472}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1771162603792102973, guid: 5f67d6e26ccb2154da838fda671fffe1, type: 3}
+  m_Sprite: {fileID: 254509965974115023, guid: f9e7180a9fa448a4d9021f68c2354080, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -142,7 +142,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1771162603792102973, guid: 5f67d6e26ccb2154da838fda671fffe1, type: 3}
+  m_Sprite: {fileID: 254509965974115023, guid: f9e7180a9fa448a4d9021f68c2354080, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -171,3 +171,4 @@ MonoBehaviour:
   height: 3
   itemProperty: {fileID: 11400000, guid: 454e7ed94dd9c0348bb59f9b5475677e, type: 2}
   cooldownFill: {fileID: 2600547494199271530}
+  isReadyToFire: 0

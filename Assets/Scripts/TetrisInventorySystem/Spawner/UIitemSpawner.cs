@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class UIitemSpawner : MonoBehaviour
@@ -67,6 +68,8 @@ public class UIitemSpawner : MonoBehaviour
 
     // Slotu dolu işaretle
     slotItems[index] = itemUI;
+    // 🔥🔥🔥 YENİ EKLENECEK: SPAWN PULSE EFFECT
+    PulseEffectOnSpawn(rt);
 }
 
 
@@ -90,4 +93,15 @@ public class UIitemSpawner : MonoBehaviour
 
         return true;
     }
+    private void PulseEffectOnSpawn(RectTransform rt)
+{
+    rt.localScale = Vector3.zero;
+
+    Sequence seq = DOTween.Sequence();
+
+    seq.Append(rt.DOScale(1.15f, 0.22f).SetEase(Ease.OutBack))
+       .Append(rt.DOScale(1f, 0.20f).SetEase(Ease.InOutQuad));
+}
+
+    
 }

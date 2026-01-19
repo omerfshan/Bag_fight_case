@@ -19,28 +19,38 @@ public class Enemy : MonoBehaviour
     [SerializeField] private TMP_Text damageText;
 
     [Header("Health Bar (UI Image)")]
-    [SerializeField] private Image barFill;   
+    [SerializeField] private Image barFill;
 
     [Header("Health")]
     public float maxHealth = 100f;
     private float currentHealth;
 
     public bool is_ready;
+    public bool is_dead = false;   // ⭐ EKLENDİ
 
     [SerializeField] private Animator anim;
-    public int spawnIndex; // bu enemy hangi hedefe gidiyor
+    public int spawnIndex;
     private EnemySpawner spawner;
 
-   public void Init(EnemySpawner spawnerRef, int index, Transform[] paths)
-{
-    spawner = spawnerRef;
-    spawnIndex = index;
-    setPlace = paths;
-}
+    [SerializeField] private ParticleSystem[] DiedEfect;
+    [SerializeField] private GameObject HealthParent;
+    [SerializeField] private GameObject TextParent;
+
+    private SpriteRenderer _renderer;
+
+    public void Init(EnemySpawner spawnerRef, int index, Transform[] paths)
+    {
+        spawner = spawnerRef;
+        spawnIndex = index;
+        setPlace = paths;
+    }
+
     void Awake()
     {
-        spawner=FindAnyObjectByType<EnemySpawner>();
+        spawner = FindAnyObjectByType<EnemySpawner>();
+        _renderer = GetComponent<SpriteRenderer>();
     }
+
     void Start()
     {
         currentHealth = maxHealth;
@@ -74,6 +84,8 @@ public class Enemy : MonoBehaviour
 
     public void TakeDamage(float dmg)
     {
+        if (is_dead) return; // ❗ Ölüyse tekrar hasar almasın
+
         currentHealth -= dmg;
         if (currentHealth < 0) currentHealth = 0;
 
@@ -96,20 +108,46 @@ public class Enemy : MonoBehaviour
 
         damageText.gameObject.SetActive(true);
         damageText.text = "-" + dmg;
-    yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
 
         anim.SetBool(HurtID, false);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
 
-        
         damageText.gameObject.SetActive(false);
     }
 
-   private void Die()
-{
-    spawner.OnEnemyDied(spawnIndex);  // spawner'a haber ver
-    Destroy(gameObject);
-}
+    // ============================================================================================
+    // ⭐⭐ YENİ - ÖLÜM ANIMASYONU + PARTICLE + KONTROLLER ⭐⭐
+    // ============================================================================================
+    private void Die()
+    {
+        if (is_dead) return;
+        is_dead = true;
 
-    
+        StartCoroutine(DeathSequence());
+    }
+
+    private IEnumerator DeathSequence()
+    {
+        // Spawner'a haber ver (daha en başta)
+      
+
+        // UI kapat
+        if (HealthParent != null) HealthParent.SetActive(false);
+        if (TextParent != null) TextParent.SetActive(false);
+
+        // Sprite kapat (yok olsun)
+        if (_renderer != null) _renderer.enabled = false;
+
+        // Particle efektleri başlat
+        foreach (var p in DiedEfect)
+        {
+            if (p != null) p.Play();
+        }
+         spawner.OnEnemyDied(spawnIndex);
+        // 1 saniye bekle (efektler gözüksün)
+        yield return new WaitForSeconds(1f);
+         
+        Destroy(gameObject);
+    }
 }

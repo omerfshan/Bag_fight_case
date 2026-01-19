@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0847e4ee86bab234ab8e716644c0e7c5, type: 3}
   m_Name: Hammer_PlayerItem
   m_EditorClassIdentifier: 
-  _sprite: {fileID: 9016526688720973019, guid: ddb1aa198b080f646942d01db6594b0e, type: 3}
-  _attackDamage: 2
-  _coolDown: 1
+  _sprite: {fileID: 5393448996881579246, guid: daad92e595f2f7a4183a492b448dcc18, type: 3}
+  _size: {x: 0.5, y: 0.5, z: 0.5}
+  _attackDamage: 20
+  _coolDown: 2
+  IsDiagonalThrow: 1

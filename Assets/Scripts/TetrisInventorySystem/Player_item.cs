@@ -30,7 +30,12 @@ public class Player_item : MonoBehaviour
     public void Load(ItemDataSO newData)
     {
         data = newData;
+
+        // ⭐ Sprite yükle
         _renderer.sprite = data.Sprite;
+
+        // ⭐ BOYUTU AYARLA
+        transform.localScale = data.Size;
     }
 
     public void SetTarget(Transform t)
@@ -39,24 +44,42 @@ public class Player_item : MonoBehaviour
         StartTweenToTarget();
     }
 
-
     private void StartTweenToTarget()
     {
         if (target == null) return;
 
         float distance = Vector3.Distance(transform.position, target.position);
         float duration = distance / speed;
-        float jumpPower = 2f;
 
-        moveTween = transform
-            .DOJump(target.position, jumpPower, 1, duration)
-            .SetEase(Ease.Linear)
-            .OnComplete(() =>
-            {
-                TryHitTarget();
-                Destroy(gameObject);
-            });
+        // 🔥 EĞİK mi NORMAL mi atanacak?
+        if (data.IsDiagonalThrow)
+        {
+            // ========== EĞİK (JUMP) ATIŞ ==========
+            float jumpPower = 2f;
 
+            moveTween = transform
+                .DOJump(target.position, jumpPower, 1, duration)
+                .SetEase(Ease.Linear)
+                .OnComplete(() =>
+                {
+                    TryHitTarget();
+                    Destroy(gameObject);
+                });
+        }
+        else
+        {
+            // ========== DÜZ ATIŞ ==========
+            moveTween = transform
+                .DOMove(target.position, duration)
+                .SetEase(Ease.Linear)
+                .OnComplete(() =>
+                {
+                    TryHitTarget();
+                    Destroy(gameObject);
+                });
+        }
+
+        // döndürme animasyonu aynı kalabilir
         rotateTween = transform
             .DORotate(new Vector3(0, 0, -360), 0.3f, RotateMode.FastBeyond360)
             .SetLoops(-1)
@@ -67,7 +90,6 @@ public class Player_item : MonoBehaviour
     private void TryHitTarget()
     {
         if (hasHit) return;
-
         if (target == null) return;
 
         float hitDist = Vector3.Distance(transform.position, target.position);
@@ -85,7 +107,6 @@ public class Player_item : MonoBehaviour
             }
         }
     }
-
 
     void OnDestroy()
     {

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27f6d51c642349443824ecd937b3b31b, type: 3}
+  m_Name: Roller_Inventory_Item
+  m_EditorClassIdentifier: 
+  _itemName: Roller
+  _width: 3
+  _height: 2
+  _uiSize: {x: 201.14, y: 325.7}
+  _rotation: {x: 0, y: 0, z: 90}
+  _shape: 010000000100000001000000010000000000000000000000
+  _itemProperty: {fileID: 11400000, guid: b0420b05e96e33d4384a283f0751d348, type: 2}

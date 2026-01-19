@@ -366,52 +366,52 @@ private void ReturnToOriginal()
 }
 public void LoadData(InventoryItemSO so)
 {
-   
     itemProperty = so.ItemProperty;
 
     width = so.Width;
     height = so.Height;
     shape = so.Shape;
 
-    // 2) UI sprite
-    if (TryGetComponent<Image>(out var img))
+    // Sprite
+    Image img;
+    if (TryGetComponent<Image>(out img))
         img.sprite = so.ItemProperty.Sprite;
-     if (cooldownFill != null)
-    {
-        cooldownFill.sprite = img.sprite;       
-    }
-    rect.sizeDelta = so.UISize;  
 
-  
-    currentCooldown = 0f;
-    isOnCooldown = false;
+    // SIZE
+    rect.sizeDelta = so.UISize;
+    if (img != null)
+        img.rectTransform.sizeDelta = so.UISize;
 
+    // ============================
+    // ROTATION (SADECE ITEM VE ANA İMAGE)
+    // ============================
+    Quaternion rot = Quaternion.Euler(so.Rotation);
+
+    rect.localRotation = rot;           
+    if (img != null)
+        img.rectTransform.localRotation = rot;
+
+    // ============================
+    // 🔥 COOLDOWN FILL → SAKIN ROTATE ETME
+    // ============================
     if (cooldownFill != null)
     {
-        
         cooldownFill.sprite = img.sprite;
+        cooldownFill.rectTransform.sizeDelta = so.UISize;
 
-      
-        cooldownFill.rectTransform.sizeDelta = img.rectTransform.sizeDelta;
-
-    
-     
-
-
-       
+        // Rotasyon sıfırlanır → böylece yamulmaz
+        cooldownFill.rectTransform.localRotation = Quaternion.identity;
     }
-   
+
+    currentCooldown = 0f;
+    isOnCooldown = false;
     lastGX = -1;
     lastGY = -1;
 
-    
-    rect.localRotation = Quaternion.identity;
-
-    
     rect.localScale = originalScale;
-
-  
 }
+
+
 
 
 }

@@ -13,6 +13,13 @@ MonoBehaviour:
   m_Name: InventoryItemDataList
   m_EditorClassIdentifier: 
   inventoryItems:
-  - {fileID: 11400000, guid: 59bddbd022d33a54eb3f01e12e3cda35, type: 2}
-  - {fileID: 11400000, guid: 83ad58ef7cbae574fb64aba31007a65a, type: 2}
-  - {fileID: 11400000, guid: b83fb3210eff10041b7116b5854c5d95, type: 2}
+  - {fileID: 11400000, guid: 174b2e0ae78e67540b1f2c55eb6a6498, type: 2}
+  - {fileID: 11400000, guid: 2406105e51539ba488970860bc5a93bf, type: 2}
+  - {fileID: 11400000, guid: dd39b6f0954cc2e40b11eefa79335635, type: 2}
+  - {fileID: 11400000, guid: b43e03bea8bc5a64f9ee285deec99755, type: 2}
+  - {fileID: 11400000, guid: b15f7974f48ef8241a4d6975493aa587, type: 2}
+  - {fileID: 11400000, guid: 9d54b8263dcf6ad43b15df743f246658, type: 2}
+  - {fileID: 11400000, guid: 881656d53165d0b45a91d9248335c506, type: 2}
+  - {fileID: 11400000, guid: 3ae8799690b6284489a287a631d9f869, type: 2}
+  - {fileID: 11400000, guid: 27c9041407a7e0b45b0d0feba41b77b7, type: 2}
+  - {fileID: 11400000, guid: 0334f9ec9b539fe4791e7c88d924ea61, type: 2}

@@ -12,6 +12,7 @@ public class InventoryItemSO : ScriptableObject
 
     [Header("UI BOYUTU (pixel veya scale)")]
     [SerializeField] private Vector2 _uiSize = new Vector2(100, 100);
+    [SerializeField] private Vector3 _rotation;
 
     [Header("Item Shape (1 = dolu, 0 = boş)")]
     [SerializeField] private int[] _shape;
@@ -32,7 +33,8 @@ public class InventoryItemSO : ScriptableObject
     public Vector2 UISize => _uiSize;
 
     public int[] Shape => _shape;
-
+    
+    public Vector3 Rotation=>_rotation;
     public ItemDataSO ItemProperty => _itemProperty;
 
     // Kısayol getter (istersen kullanırsın)
