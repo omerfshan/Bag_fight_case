@@ -159,7 +159,6 @@ public class ItemDragHandler
 
         Vector2 targetPos = item.grid.GridToPos(gx, gy, item.width, item.height);
 
-   
         item.StartCoroutine(SmoothPlace(targetPos));
 
         item.grid.FillArea(gx, gy, item);
@@ -183,11 +182,19 @@ public class ItemDragHandler
             Object.Destroy(info);
         }
 
-        if (item.currentCooldown <= 0f)
-            item.StartCooldown();
-        else
+        // 🔥 Eğer şu an cooldown içindeyse (daha önce ateş etmiş ve durdurulmuşsa)
+        // sadece kaldığı yerden devam ettir.
+        if (item.currentCooldown > 0f && item.isOnCooldown)
+        {
             item.ResumeCooldown();
+        }
+        else
+        {
+            // ❗ Hiç cooldown yoksa (yeni item) → direkt ready olsun.
+            item.isReadyToFire = true;
+        }
     }
+
 
 
    
