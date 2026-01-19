@@ -22,9 +22,6 @@
 *.booproj
 *.svd
 
-# Unity Package Manager
-/[Pp]ackages/manifest.json
-/[Pp]ackages/packages-lock.json
 
 # PlasticSCM files
 .plastic/
