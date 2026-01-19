@@ -15,7 +15,7 @@ MonoBehaviour:
   _itemName: Knife
   _width: 2
   _height: 1
-  _uiSize: {x: 56.2, y: 211.9}
+  _uiSize: {x: 69.58, y: 213.41}
   _rotation: {x: 0, y: 0, z: -272.107}
   _shape: 0100000001000000
   _itemProperty: {fileID: 11400000, guid: 11bacec2e623e7242aec8fa1169bfa64, type: 2}

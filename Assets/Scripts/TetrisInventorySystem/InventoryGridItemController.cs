@@ -192,6 +192,7 @@ private void ResumeCooldown()
    public void OnBeginDrag(PointerEventData eventData)
 {
     isDragging = true;
+      SoundManager.Instance.ItemPickSound();
   originalParent = transform.parent;
     originalAnchoredPos = rect.anchoredPosition;
   PauseCooldown();
@@ -305,7 +306,7 @@ private void ResumeCooldown()
             isOnTrash = false;
 
             trashArea.SetClose();
-
+            SoundManager.Instance.TrashSound();
             // ⭐ Eğer item UI slot'tan geldiyse → slot'u boşalt
             if (TryGetComponent<UISlotInfo>(out var info))
             {
@@ -347,7 +348,7 @@ private void ResumeCooldown()
                 lastGY = targetGY;
 
                 rect.DOScale(originalScale, 0.15f);
-
+                SoundManager.Instance.ItemPlaceSound();
                 if (cooldownFill != null)
                     cooldownFill.fillAmount = 1f;
 
@@ -412,7 +413,7 @@ private void ReturnToOriginal()
     }
 
     // GRIDDE DEĞİLDİ → UI'YA dön
-    transform.SetParent(originalParent, false);
+    transform.SetParent(originalParent, true);
     rect.DOAnchorPos(originalAnchoredPos, 0.2f);
     rect.DOScale(originalScale, 0.15f);
 }

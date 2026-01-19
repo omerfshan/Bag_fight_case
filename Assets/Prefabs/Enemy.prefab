@@ -10630,6 +10630,7 @@ MonoBehaviour:
   - {fileID: 2843261351252367530}
   HealthParent: {fileID: 8720058098297530452}
   TextParent: {fileID: 2339629856934264909}
+  footStepInterval: 0.2
 --- !u!61 &4940771156541783494
 BoxCollider2D:
   m_ObjectHideFlags: 0

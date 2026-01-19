@@ -26,7 +26,7 @@ public class Enemy : MonoBehaviour
     private float currentHealth;
 
     public bool is_ready;
-    public bool is_dead = false;   // ⭐ EKLENDİ
+    public bool is_dead = false;
 
     [SerializeField] private Animator anim;
     public int spawnIndex;
@@ -38,6 +38,10 @@ public class Enemy : MonoBehaviour
 
     private SpriteRenderer _renderer;
 
+    // 🔥 Saldırıyı yöneten Spawner (item fırlatan)
+    private Spawner attackSpawner;
+    private float footStepTimer = 0f;
+    [SerializeField] private float footStepInterval = 0.4f;
     public void Init(EnemySpawner spawnerRef, int index, Transform[] paths)
     {
         spawner = spawnerRef;
@@ -48,16 +52,22 @@ public class Enemy : MonoBehaviour
     void Awake()
     {
         spawner = FindAnyObjectByType<EnemySpawner>();
+        attackSpawner = FindAnyObjectByType<Spawner>();
         _renderer = GetComponent<SpriteRenderer>();
     }
 
     void Start()
     {
         currentHealth = maxHealth;
-        damageText.gameObject.SetActive(false);
+        if (damageText != null)
+            damageText.gameObject.SetActive(false);
 
         if (barFill != null)
             barFill.fillAmount = 1f;
+
+        // 🔥 Enemy doğduğunda → saldırı kuyruğuna EKLE
+        if (attackSpawner != null)
+            attackSpawner.RegisterEnemy(this);
 
         StartCoroutine(MoveCoroutine());
     }
@@ -70,6 +80,13 @@ public class Enemy : MonoBehaviour
 
         while (Vector3.Distance(transform.position, target.position) > reachDistance)
         {
+            footStepTimer += Time.deltaTime;
+
+            if (footStepTimer >= footStepInterval)
+            {
+                footStepTimer = 0f;
+                SoundManager.Instance.EnemyFootSound();
+            }
             transform.position = Vector3.MoveTowards(
                 transform.position,
                 target.position,
@@ -84,14 +101,14 @@ public class Enemy : MonoBehaviour
 
     public void TakeDamage(float dmg)
     {
-        if (is_dead) return; // ❗ Ölüyse tekrar hasar almasın
+        if (is_dead) return;
 
         currentHealth -= dmg;
         if (currentHealth < 0) currentHealth = 0;
 
         UpdateHealthBar();
         StartCoroutine(DamageRoutine(dmg));
-
+         SoundManager.Instance.EnemyHurtSound();
         if (currentHealth <= 0)
             Die();
     }
@@ -106,37 +123,36 @@ public class Enemy : MonoBehaviour
     {
         anim.SetBool(HurtID, true);
 
-        damageText.gameObject.SetActive(true);
-        damageText.text = "-" + dmg;
+        if (damageText != null)
+        {
+            damageText.gameObject.SetActive(true);
+            damageText.text = "-" + dmg;
+        }
+
         yield return new WaitForEndOfFrame();
 
         anim.SetBool(HurtID, false);
         yield return new WaitForSeconds(0.1f);
 
-        damageText.gameObject.SetActive(false);
+        if (damageText != null)
+            damageText.gameObject.SetActive(false);
     }
 
-    // ============================================================================================
-    // ⭐⭐ YENİ - ÖLÜM ANIMASYONU + PARTICLE + KONTROLLER ⭐⭐
-    // ============================================================================================
     private void Die()
     {
         if (is_dead) return;
         is_dead = true;
-
+        SoundManager.Instance.EnemyDieSound();
         StartCoroutine(DeathSequence());
     }
 
     private IEnumerator DeathSequence()
     {
-        // Spawner'a haber ver (daha en başta)
-      
-
         // UI kapat
         if (HealthParent != null) HealthParent.SetActive(false);
         if (TextParent != null) TextParent.SetActive(false);
 
-        // Sprite kapat (yok olsun)
+        // Sprite kapat
         if (_renderer != null) _renderer.enabled = false;
 
         // Particle efektleri başlat
@@ -144,10 +160,18 @@ public class Enemy : MonoBehaviour
         {
             if (p != null) p.Play();
         }
-         spawner.OnEnemyDied(spawnIndex);
-        // 1 saniye bekle (efektler gözüksün)
+
+        // 🔥 Kuyruktan çıkar (artık hedef alınmasın)
+        if (attackSpawner != null)
+            attackSpawner.UnregisterEnemy(this);
+
+        // Eski sistemin respawn mantığı:
+        if (spawner != null)
+            spawner.OnEnemyDied(spawnIndex);
+
+        // 1 saniye bekle (efekt için)
         yield return new WaitForSeconds(1f);
-         
+
         Destroy(gameObject);
     }
 }

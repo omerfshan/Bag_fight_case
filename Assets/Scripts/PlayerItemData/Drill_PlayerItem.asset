@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _sprite: {fileID: 254509965974115023, guid: f9e7180a9fa448a4d9021f68c2354080, type: 3}
   _size: {x: 0.5, y: 0.5, z: 0.5}
-  _attackDamage: 20
-  _coolDown: 2
+  _attackDamage: 10
+  _coolDown: 6
   IsDiagonalThrow: 1

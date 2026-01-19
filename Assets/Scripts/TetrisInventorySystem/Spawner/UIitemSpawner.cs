@@ -48,7 +48,7 @@ public class UIitemSpawner : MonoBehaviour
 
     // Prefab oluştur (parent belirtmeden)
     InventoryGridItemController itemUI = Instantiate(itemPrefab);
-
+    SoundManager.Instance.ItemSpawnSound();
     // Doğru UI parentlama
     itemUI.transform.SetParent(spawnSlots[index], true);
 
