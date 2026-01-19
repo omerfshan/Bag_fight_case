@@ -35,7 +35,6 @@ public class SoundManager : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
-    // === ENEMY ===
     public void EnemyFootSound()
     {
         if (enemyFootSteps != null)
@@ -54,7 +53,7 @@ public class SoundManager : MonoBehaviour
             audioSource.PlayOneShot(enemyDie, enemyDieVolume);
     }
 
-    // === ITEM ===
+
     public void ThrowItemSound()
     {
         if (throwItem != null)

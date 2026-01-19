@@ -20,11 +20,6 @@ public class InventoryItemSO : ScriptableObject
     [Header("ItemData SO (Statlar, Cooldown vs.)")]
     [SerializeField] private ItemDataSO _itemProperty;
 
-
-    // =====================
-    // GETTER’LAR
-    // =====================
- 
     public string ItemName => _itemName;
 
     public int Width => _width;
@@ -37,7 +32,7 @@ public class InventoryItemSO : ScriptableObject
     public Vector3 Rotation=>_rotation;
     public ItemDataSO ItemProperty => _itemProperty;
 
-    // Kısayol getter (istersen kullanırsın)
+    
     public float CoolDown => _itemProperty != null ? _itemProperty.CoolDown : 0f;
     public float AttackDamage => _itemProperty != null ? _itemProperty.AttackDamage : 0f;
 }
