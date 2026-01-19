@@ -8,7 +8,7 @@ public class PlayerSpawner : MonoBehaviour
     [SerializeField] private string AttackID = "Attack";
     [SerializeField] private Player_item prefab;
     private bool globalDelay = false;
-    private bool isAttacking = false;
+   
 
     
     private SpawnEnemyQueue enemyQueueHandler;
