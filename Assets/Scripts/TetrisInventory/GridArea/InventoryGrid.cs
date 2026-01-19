@@ -10,7 +10,7 @@ public class InventoryGrid : MonoBehaviour
     public CellUI[] cells;
     public CellUI[,] cellUIs;
 
-    // === SOLID Handlers ===
+   
     private GridInitializer initializer;
     private GridPositionCalculator posCalc;
     private GridOccupancy occupancy;
@@ -22,7 +22,7 @@ public class InventoryGrid : MonoBehaviour
     {
         rect = GetComponent<RectTransform>();
 
-        // Handler oluşturma
+        
         initializer = new GridInitializer();
         posCalc = new GridPositionCalculator();
         occupancy = new GridOccupancy();
@@ -33,7 +33,7 @@ public class InventoryGrid : MonoBehaviour
 
     void Start()
     {
-        // GRID OLUŞTURMA (DAVRANIŞ AYNI)
+       
         initializer.InitializeGrid(this);
     }
 

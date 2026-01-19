@@ -19,7 +19,7 @@ public class EnemyFactory
     {
         Enemy newEnemy = Object.Instantiate(_prefab, _spawnPoint.position, Quaternion.identity);
 
-        // Orijinal koddaki Init → değişmedi
+        
         newEnemy.Init(_spawner, index, _targetPoints);
 
         return newEnemy;

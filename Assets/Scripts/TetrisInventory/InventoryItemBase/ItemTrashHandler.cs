@@ -74,7 +74,7 @@ public class ItemTrashHandler
             Object.Destroy(info);
         }
 
-        // Silme animasyonu
+     
         item.rect.DOScale(0f, 0.2f)
             .SetEase(Ease.InBack)
             .OnComplete(() =>

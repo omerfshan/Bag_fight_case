@@ -182,15 +182,14 @@ public class ItemDragHandler
             Object.Destroy(info);
         }
 
-        // 🔥 Eğer şu an cooldown içindeyse (daha önce ateş etmiş ve durdurulmuşsa)
-        // sadece kaldığı yerden devam ettir.
+       
         if (item.currentCooldown > 0f && item.isOnCooldown)
         {
             item.ResumeCooldown();
         }
         else
         {
-            // ❗ Hiç cooldown yoksa (yeni item) → direkt ready olsun.
+           
             item.isReadyToFire = true;
         }
     }
@@ -224,7 +223,7 @@ public class ItemDragHandler
     {
         item.isDragging = false;
 
-        // GRİDE GERİ DÖNÜŞ
+        
         if (item.lastGX != -1 && item.lastGY != -1)
         {
             Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(item.canvas.worldCamera, item.rect.position);
