@@ -2163,9 +2163,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 723610852}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: //////////////////////ENEMIES////////////////////////////////////////////
-  m_TagString: Untagged
+  m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2779,9 +2779,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 895700122}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: '//////////////////////PLAYER//////////////////////////////////////////// '
-  m_TagString: Untagged
+  m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3371,9 +3371,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1009494945}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: ////////////////////// UI ///////////////////////////////////////////////////
-  m_TagString: Untagged
+  m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5647,9 +5647,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1728626163}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: //////////////////////ENVIRONMENT///////////////////////////////////
-  m_TagString: Untagged
+  m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5780,9 +5780,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1752339768}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: //////////////////////CAMERA/////////////////////////////////////////////
-  m_TagString: Untagged
+  m_TagString: EditorOnly
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
