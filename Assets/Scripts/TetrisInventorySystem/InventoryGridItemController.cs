@@ -23,6 +23,7 @@ public class InventoryGridItemController: MonoBehaviour, IBeginDragHandler, IDra
     public int[] shape;
     public int width = 1;
     public int height = 1;
+    
 
     private InventoryManager inv;
     [SerializeField] private ItemDataSO itemProperty;
@@ -35,8 +36,11 @@ public class InventoryGridItemController: MonoBehaviour, IBeginDragHandler, IDra
 public bool isReadyToFire = false;
 private Transform originalParent;
 private Vector2 originalAnchoredPos;
-
-
+private TrashArea trashArea;
+private bool isOnTrash = false;
+private Image itemImage; 
+private Color originalItemColor;
+private Color originalFillColor;
     // =========================
     // COOLDOWN FONKSIYONLARI
     // =========================
@@ -164,13 +168,22 @@ private void ResumeCooldown()
             cooldownFill.fillAmount = 1f;
         inv = FindAnyObjectByType<InventoryManager>();
         grid=FindAnyObjectByType<InventoryGrid>();
+        itemImage = GetComponent<Image>();
+        trashArea = FindAnyObjectByType<TrashArea>();
+       
+        if (itemImage != null)
+            originalItemColor = itemImage.color;
+
+        if (cooldownFill != null)
+    originalFillColor = cooldownFill.color;
+
     }
 
-    void Update()
-    {
-        if (isDragging && Input.GetKeyDown(KeyCode.R))
-            RotateItem();
-    }
+    // void Update()
+    // {
+    //     if (isDragging && Input.GetKeyDown(KeyCode.R))
+    //         RotateItem();
+    // }
 
 
     // =========================
@@ -201,21 +214,34 @@ private void ResumeCooldown()
 
 
     public void OnDrag(PointerEventData eventData)
+{
+    Camera cam = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : canvas.worldCamera;
+
+    RectTransformUtility.ScreenPointToLocalPointInRectangle(
+        transform.parent as RectTransform,
+        eventData.position,
+        cam,
+        out Vector2 localPoint
+    );
+
+    rect.anchoredPosition = localPoint;
+
+    if (inv != null)
+        inv.RemoveItem(this);
+
+    // ================================
+    // ⭐ GRID ÜSTÜNDE Mİ KONTROL
+    // ================================
+    RectTransform gridRect = grid.GetComponent<RectTransform>();
+
+    bool overGrid = RectTransformUtility.RectangleContainsScreenPoint(
+        gridRect,
+        eventData.position,
+        canvas.worldCamera
+    );
+
+    if (overGrid)
     {
-        Camera cam = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : canvas.worldCamera;
-
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            transform.parent as RectTransform,
-            eventData.position,
-            cam,
-            out Vector2 localPoint
-        );
-
-        rect.anchoredPosition = localPoint;
-
-        if (inv != null)
-            inv.RemoveItem(this);
-
         if (grid.ScreenToGrid(eventData.position, out int gx, out int gy))
         {
             int targetGX = gx - (width / 2);
@@ -223,9 +249,82 @@ private void ResumeCooldown()
             grid.HighlightArea(targetGX, targetGY, this);
         }
     }
+    else
+    {
+        // ⭐ Grid dışına çıkınca hücreleri eski haline döndür
+        grid.ClearAllHover();
+    }
+
+    // ================================
+    // ÇÖP ALANI KONTROLÜ
+    // ================================
+    if (trashArea != null)
+    {
+        RectTransform trashRect = trashArea.GetComponent<RectTransform>();
+
+        bool overTrash = RectTransformUtility.RectangleContainsScreenPoint(
+            trashRect,
+            eventData.position,
+            canvas.worldCamera
+        );
+
+        if (overTrash && !isOnTrash)
+        {
+            isOnTrash = true;
+
+            trashArea.SetOpen();
+
+            Color trashColor = new Color(1f, 0.3f, 0.3f, 0.7f);
+
+            if (itemImage != null)
+                itemImage.color = trashColor;
+
+            if (cooldownFill != null)
+                cooldownFill.color = trashColor;
+        }
+        else if (!overTrash && isOnTrash)
+        {
+            isOnTrash = false;
+
+            trashArea.SetClose();
+
+            if (itemImage != null)
+                itemImage.color = originalItemColor;
+
+            if (cooldownFill != null)
+                cooldownFill.color = originalFillColor;
+        }
+    }
+}
+
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (isOnTrash)
+        {
+            isOnTrash = false;
+
+            trashArea.SetClose();
+
+            // ⭐ Eğer item UI slot'tan geldiyse → slot'u boşalt
+            if (TryGetComponent<UISlotInfo>(out var info))
+            {
+                FindAnyObjectByType<UIitemSpawner>().MarkSlotEmpty(info.slotIndex);
+                Destroy(info);   // bu component'i sil
+            }
+
+            // 🔥 Item kırmızı kalsın ve yok olsun
+            rect.DOScale(0f, 0.2f).SetEase(Ease.InBack).OnComplete(() =>
+            {
+                Destroy(gameObject);
+            });
+
+            return;
+        }
+
+
+
+
         isDragging = false;
         grid.ClearAllHover();
         rect.DOKill();
@@ -331,35 +430,35 @@ private void ReturnToOriginal()
         return false;
     }
 
-    private void RotateItem()
-    {
-        int[] newShape = new int[shape.Length];
+    // private void RotateItem()
+    // {
+    //     int[] newShape = new int[shape.Length];
 
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                int newX = (height - 1) - y;
-                int newY = x;
-                newShape[newY * height + newX] = shape[y * width + x];
-            }
-        }
+    //     for (int y = 0; y < height; y++)
+    //     {
+    //         for (int x = 0; x < width; x++)
+    //         {
+    //             int newX = (height - 1) - y;
+    //             int newY = x;
+    //             newShape[newY * height + newX] = shape[y * width + x];
+    //         }
+    //     }
 
-        shape = newShape;
+    //     shape = newShape;
 
-        int temp = width;
-        width = height;
-        height = temp;
+    //     int temp = width;
+    //     width = height;
+    //     height = temp;
 
-        rect.DORotate(rect.eulerAngles + new Vector3(0, 0, -90), 0.2f);
+    //     rect.DORotate(rect.eulerAngles + new Vector3(0, 0, -90), 0.2f);
 
-        if (grid.ScreenToGrid(Input.mousePosition, out int gx, out int gy))
-        {
-            int targetGX = gx - (width / 2);
-            int targetGY = gy - (height / 2);
-            grid.HighlightArea(targetGX, targetGY, this);
-        }
-    }
+    //     if (grid.ScreenToGrid(Input.mousePosition, out int gx, out int gy))
+    //     {
+    //         int targetGX = gx - (width / 2);
+    //         int targetGY = gy - (height / 2);
+    //         grid.HighlightArea(targetGX, targetGY, this);
+    //     }
+    // }
     public ItemDataSO GetData()
 {
     return itemProperty;

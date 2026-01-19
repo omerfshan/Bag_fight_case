@@ -1,16 +1,27 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TrashArea : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private Image trashImage;
+
+    [SerializeField] private Sprite trashOpen;
+    [SerializeField] private Sprite trashClose;
+
+    void Awake()
     {
-        
+        trashImage = transform.GetChild(0).GetComponent<Image>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SetOpen()
     {
-        
+        if (trashImage != null)
+            trashImage.sprite = trashOpen;
+    }
+
+    public void SetClose()
+    {
+        if (trashImage != null)
+            trashImage.sprite = trashClose;
     }
 }
