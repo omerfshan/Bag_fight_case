@@ -22,7 +22,6 @@ public class SpawnEnemyQueue
         return enemyQueue;
     }
 
-    // Dışarıdan erişim: sadece okunabilir
     public Enemy GetFirst()
     {
         enemyQueue.RemoveAll(e => e == null || e.is_dead);

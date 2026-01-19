@@ -10,9 +10,7 @@ public class ItemTrashHandler
         item = controller;
     }
 
-    // =====================================================
-    //  DRAG SIRASINDA ÇÖP KONTROLÜ
-    // =====================================================
+ 
     public void HandleTrashHover(Vector2 pointerPos)
     {
         if (item.trashArea == null)
@@ -26,7 +24,7 @@ public class ItemTrashHandler
             item.canvas.worldCamera
         );
 
-        // Çöpe GİRİŞ
+        
         if (overTrash && !item.isOnTrash)
         {
             item.isOnTrash = true;
@@ -44,7 +42,7 @@ public class ItemTrashHandler
             return;
         }
 
-        // Çöpten ÇIKIŞ
+       
         if (!overTrash && item.isOnTrash)
         {
             item.isOnTrash = false;
@@ -59,9 +57,7 @@ public class ItemTrashHandler
         }
     }
 
-    // =====================================================
-    //  DRAG BİTİNCE ÇÖPE ATILIYORSA → TAM SİLME İŞLEMİ
-    // =====================================================
+  
     public bool TryDeleteOnTrash()
     {
         if (!item.isOnTrash)
@@ -71,7 +67,7 @@ public class ItemTrashHandler
         item.trashArea.SetClose();
         SoundManager.Instance.TrashSound();
 
-        // UI slot'tan geldiyse → slot'u boşalt
+     
         if (item.TryGetComponent<UISlotInfo>(out var info))
         {
             item.spawnerRef.MarkSlotEmpty(info.slotIndex);

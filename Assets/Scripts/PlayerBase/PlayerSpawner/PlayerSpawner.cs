@@ -10,26 +10,26 @@ public class PlayerSpawner : MonoBehaviour
 
     private bool isAttacking = false;
 
-    // === SOLID Yardımcı sınıflar ===
+    
     private SpawnEnemyQueue enemyQueueHandler;
     private SpawnTargetSelector targetSelector;
     private SpawnAttackExecutor attackExecutor;
 
     void Awake()
     {
-        // SOLID sınıfları initialize ediyoruz
+      
         enemyQueueHandler = new SpawnEnemyQueue();
         targetSelector = new SpawnTargetSelector(enemyQueueHandler);
         attackExecutor = new SpawnAttackExecutor(this, anim, AttackID, prefab);
     }
 
-    // 🔥 Enemy doğunca
+  
     public void RegisterEnemy(Enemy enemy)
     {
         enemyQueueHandler.Register(enemy);
     }
 
-    // 🔥 Enemy ölünce
+   
     public void UnregisterEnemy(Enemy enemy)
     {
         enemyQueueHandler.Unregister(enemy);
@@ -53,17 +53,17 @@ public class PlayerSpawner : MonoBehaviour
     {
         isAttacking = true;
 
-        // ⭐ sıradaki enemy (davranış aynı)
+       
         Enemy target = targetSelector.GetNextEnemy();
 
         if (target != null)
         {
             yield return attackExecutor.FireItem(invItem, target.transform);
 
-            // Item listeden kaldır
+        
             invSystem.RemoveItem(invItem);
 
-            // Cooldown tetikle
+           
             invItem.OnFiredBySpawner();
         }
 

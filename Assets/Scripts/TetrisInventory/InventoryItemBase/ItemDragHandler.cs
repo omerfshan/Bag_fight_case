@@ -11,9 +11,7 @@ public class ItemDragHandler
         item = controller;
     }
 
-    // =====================================================
-    //  ON BEGIN DRAG
-    // =====================================================
+   
     public void OnBeginDrag(PointerEventData eventData)
     {
         item.isDragging = true;
@@ -41,9 +39,7 @@ public class ItemDragHandler
         item.rect.SetAsLastSibling();
     }
 
-    // =====================================================
-    //  ON DRAG
-    // =====================================================
+    
     public void OnDrag(PointerEventData eventData)
     {
         Camera cam = (item.canvas.renderMode == RenderMode.ScreenSpaceOverlay)
@@ -62,9 +58,6 @@ public class ItemDragHandler
         if (item.inv != null)
             item.inv.RemoveItem(item);
 
-        // ========================
-        // GRID ÜSTÜNDE Mİ?
-        // ========================
         RectTransform gridRect = item.grid.GetComponent<RectTransform>();
 
         bool overGrid = RectTransformUtility.RectangleContainsScreenPoint(
@@ -88,9 +81,7 @@ public class ItemDragHandler
             item.grid.ClearAllHover();
         }
 
-        // ========================
-        // ÇÖP KUTUSUNDA MI?
-        // ========================
+       
         if (item.trashArea != null)
         {
             RectTransform trashRect = item.trashArea.GetComponent<RectTransform>();
@@ -129,9 +120,7 @@ public class ItemDragHandler
         }
     }
 
-    // =====================================================
-    //  ON END DRAG
-    // =====================================================
+   
     public void OnEndDrag(PointerEventData eventData)
     {
         if (item.isOnTrash)
@@ -145,7 +134,7 @@ public class ItemDragHandler
         item.grid.ClearAllHover();
         item.rect.DOKill();
 
-        // GRID üzerindeysek ve yerleşebilirse
+     
         if (item.grid.ScreenToGrid(eventData.position, out int gx, out int gy))
         {
             int targetGX = gx - Mathf.FloorToInt(item.width / 2f);
@@ -158,13 +147,11 @@ public class ItemDragHandler
             }
         }
 
-        // Yerleşemediyse → eski yerine dön
+       
         item.ReturnToOriginal();
     }
 
-    // =====================================================
-    //  YERLEŞTİRME
-    // =====================================================
+   
     private void PlaceItem(int gx, int gy)
     {
         item.transform.SetParent(item.grid.transform, true);
@@ -186,7 +173,7 @@ public class ItemDragHandler
         if (item.inv != null)
             item.inv.AddItem(item);
 
-        // UI slot sisteminden geliyorsa
+      
         if (item.TryGetComponent<UISlotInfo>(out var info))
         {
            item.spawnerRef.MarkSlotEmpty(info.slotIndex);
@@ -199,9 +186,7 @@ public class ItemDragHandler
             item.ResumeCooldown();
     }
 
-    // =====================================================
-    //  ÇÖP İÇİN SİLME
-    // =====================================================
+   
     private void HandleTrashDelete()
     {
         item.isOnTrash = false;
@@ -223,12 +208,10 @@ public class ItemDragHandler
             });
     }
 
-    // =====================================================
-    //  GRID DIŞINA DÖNME
-    // =====================================================
+    
     public void ReturnToOriginal()
     {
-        // GRIDDEYDİ → eski grid yerine dön
+      
         if (item.lastGX != -1 && item.lastGY != -1)
         {
             Vector3 worldPos = item.rect.TransformPoint(Vector3.zero);
@@ -252,7 +235,7 @@ public class ItemDragHandler
             return;
         }
 
-        // GRIDDE DEĞİLDİ → UI slot’a geri dön
+    
         item.transform.SetParent(item.originalParent, true);
         item.rect.DOAnchorPos(item.originalAnchoredPos, 0.2f);
         item.rect.DOScale(item.originalScale, 0.15f);

@@ -13,11 +13,9 @@ public class PlayerItemDataLoader
     {
         item.data = newData;
 
-        // Sprite yükle
         if (item.rendererRef != null)
             item.rendererRef.sprite = item.data.Sprite;
 
-        // Boyut yükle
         item.transform.localScale = item.data.Size;
     }
 }

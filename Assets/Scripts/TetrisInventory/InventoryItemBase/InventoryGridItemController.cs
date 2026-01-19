@@ -18,20 +18,13 @@ public class InventoryGridItemController :
     public TrashArea trashArea;
     public Image cooldownFill;
     public Image itemImage;
-
     public int[] shape;
     public int width = 1;
     public int height = 1;
-
     public float dragScale = 1.15f;
-
     public bool isReadyToFire = false;
-
     public ItemDataSO itemProperty;
-
-    // Internal states
     public Vector3 lastWorldPos;
-
     public Vector3 originalScale;
     public Vector2 originalAnchoredPos;
     public Transform originalParent;
@@ -43,15 +36,9 @@ public class InventoryGridItemController :
     public int lastGY = -1;
     public float currentCooldown = 0;
     public Coroutine cooldownRoutine;
-    
     public UIitemSpawner spawnerRef;
-
     public Color originalItemColor;
     public Color originalFillColor;
-
-    // ============================
-    //   SOLID HANDLER REFERANSLARI
-    // ============================
     private ItemDragHandler dragHandler;
     private ItemCooldownHandler cooldownHandler;
     private ItemPlacementHandler placementHandler;
@@ -80,9 +67,6 @@ public class InventoryGridItemController :
         if (cooldownFill != null)
             cooldownFill.fillAmount = 1f;
 
-        // =============================
-        // HANDLER OBJELERİNİ OLUŞTUR
-        // =============================
         dragHandler = new ItemDragHandler(this);
         cooldownHandler = new ItemCooldownHandler(this);
         placementHandler = new ItemPlacementHandler(this);
@@ -92,9 +76,7 @@ public class InventoryGridItemController :
         dataLoader = new ItemDataLoader(this);
     }
 
-    // =============================
-    // PUBLIC API (ORİJİNALLE AYNI)
-    // =============================
+   
 
     public void StartCooldown() => cooldownHandler.StartCooldown();
     public void OnFiredBySpawner() => cooldownHandler.OnFiredBySpawner();
@@ -103,9 +85,7 @@ public class InventoryGridItemController :
     public ItemDataSO GetData() => itemProperty;
     public void LoadData(InventoryItemSO so) => dataLoader.LoadData(so);
 
-    // =============================
-    //      DRAG EVENTS
-    // =============================
+  
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -122,9 +102,7 @@ public class InventoryGridItemController :
         dragHandler.OnEndDrag(eventData);
     }
 
-    // =============================
-    //    ORİJİNAL HELPER FONKSİYON
-    // =============================
+   
     public bool IsCellInShape(int x, int y)
     {
         int index = y * width + x;

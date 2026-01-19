@@ -9,9 +9,7 @@ public class ItemHighlightHandler
         item = controller;
     }
 
-    // =====================================================
-    // GRID ÜZERİNDE HOVER HIGHLIGHT
-    // =====================================================
+ 
     public void HandleHighlight(Vector2 pointerPos)
     {
         RectTransform gridRect = item.grid.GetComponent<RectTransform>();

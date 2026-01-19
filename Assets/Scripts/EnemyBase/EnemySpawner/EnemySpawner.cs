@@ -32,7 +32,7 @@ public class EnemySpawner : MonoBehaviour
 
     public void OnEnemyDied(int index)
     {
-        // Invoke burada olacak → ÇALIŞMASI GARANTİ
+      
         Invoke(nameof(RespawnDelayed), 0.5f);
         _respawn.respawnIndex = index;
     }

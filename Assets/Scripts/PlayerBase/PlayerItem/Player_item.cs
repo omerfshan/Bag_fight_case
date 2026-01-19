@@ -5,15 +5,9 @@ public class Player_item : MonoBehaviour
 {
     public ItemDataSO data;
     public Transform target;
-
     public float speed = 5f;
     public float lifetime = 2f;
-
     public SpriteRenderer rendererRef;
-
-    private bool hasHit = false;
-
-    // SOLID bileşenler
     public PlayerItemMovement moveHandler;
     public PlayerItemDamage damageHandler;
     public PlayerItemDataLoader dataLoader;

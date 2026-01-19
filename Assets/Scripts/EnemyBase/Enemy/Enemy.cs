@@ -57,7 +57,7 @@ public class Enemy : MonoBehaviour
         attackSpawner = FindAnyObjectByType<PlayerSpawner>();
         rendererRef = GetComponent<SpriteRenderer>();
 
-        // Yardımcı classlar
+     
         deathHandler = new EnemyDeath(this);
         healthHandler = new EnemyHealth(this, deathHandler);
         movementHandler = new EnemyMovement(this);
