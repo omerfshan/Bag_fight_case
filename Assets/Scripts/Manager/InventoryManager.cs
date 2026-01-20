@@ -9,16 +9,15 @@ public class InventoryManager : MonoBehaviour
     public void AddItem(InventoryGridItemController item)
     {
         inventory_Items.Add(item);
-     Debug.Log("girdi");
+    
         OnItemAdded?.Invoke(item);
     }
 
 
     public void RemoveItem(InventoryGridItemController item)
-        {
-            inventory_Items.Remove(item);
-           Debug.Log("cıktı");
-        }
+    {
+        inventory_Items.Remove(item);
+    }
 
    
     
